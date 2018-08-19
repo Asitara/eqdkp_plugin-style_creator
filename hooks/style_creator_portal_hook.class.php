@@ -30,8 +30,7 @@ if (!class_exists('style_creator_portal_hook')){
 			// 	$(\'#plus_plugins_tab button[onclick$="create\'"]\').before(\'<button class="mainoption" type="button" onclick="toggleStyleCreator();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>\');
 			// ');
 			// }
-			$this->scp->getLessVars();
-			
+			$this->scp->addStyleFiles();
 			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
 			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
 		}

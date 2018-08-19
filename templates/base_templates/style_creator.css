@@ -1,9 +1,94 @@
+/* ./../plugins/style_creator/templates/base_templates/style_creator.css*/
+
 
 #scp_overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	
+	display: none !important;
+	
+	
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  text-align: left;
 }
-
+.scp_control_box {
+  position: relative;
+  top: 70px;
+  left: 200px;
+  height: 400px;
+  width: 800px;
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_strong.png") no-repeat center / 100% 100%;
+}
+.scp_title_bar {
+  position: absolute;
+  top: -10px;
+  left: -1px;
+  padding: 3px 10px 7px 10px;
+  border: none;
+  font-size: 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  text-shadow: 1px 1px #000;
+  color: #da4141;
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar.png") no-repeat center / 100% 100%;
+}
+.scp_title_bar:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateX(100%);
+  height: 100%;
+  width: 35px;
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar_edge.png") no-repeat center / 100% 100%;
+}
+.scp_button_close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/button_close.png") no-repeat center / 100% 100%;
+  border: none !important;
+  height: 20px;
+  width: 20px;
+}
+.scp_button_close:hover {
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/button_close_hover.png") no-repeat center / 100% 100%;
+}
+.scp_control_box_head {
+  position: relative;
+  top: 35px;
+  left: 15px;
+  width:calc(100% - 30px);
+  height: 30px;
+  background: #041a;
+}
+.scp_control_box_body {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  top: 40px;
+  left: 15px;
+  width:calc(100% - 30px);
+  height: calc(100% - 80px);
+}
+.scp_control_box_menu {
+  list-style: none;
+  overflow-y: auto;
+  flex: 0 0 170px;
+  height: 100%;
+}
+.scp_control_box_menu > li {
+  padding: 10px;
+  margin: 5px 3px 5px 0px;
+  background: rgba(200, 90, 30, 0.5);
+  border: 1px solid rgba(200, 90, 30, 0.5);
+}
+.scp_control_box_content {
+  padding: 8px 12px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_soft.png") no-repeat center / 100% 100%;
+}

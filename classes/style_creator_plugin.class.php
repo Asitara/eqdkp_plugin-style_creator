@@ -97,7 +97,32 @@ if(!class_exists('style_creator_plugin')){
 			//		In der Theorie würde ich sagen, einfach als <style> mit ausgeben
 			
 			// d($arrLessVars);
+			return $arrLessVars;
+		}
+		
+		public function addStyleFiles(){
 			
+			$strGlobalVars = ' ';
+			foreach($this->getLessVars() as $var_name => $var_value){
+				$strGlobalVars .= "'".$var_name."':'".$var_value."',";
+			}
+			
+			$strHeadInjection = '
+				<link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" />
+				<style></style>
+				<script>
+					less = {
+						env: "development",
+						async: true,
+						fileAsync: true,
+						poll: 1000,
+						globalVars: '.json_encode($this->getLessVars()).',
+					};
+					additional_less = '.json_encode($this->user->style['additional_less']).';
+				</script>
+				<script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js"></script>
+			';
+			$this->tpl->add_listener('head', $strHeadInjection, true);
 		}
 		
 		private function replaceSomePathVariables($strVar){
