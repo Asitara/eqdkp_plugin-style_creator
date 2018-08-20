@@ -109,12 +109,14 @@ if(!class_exists('style_creator_plugin')){
 			
 			$strHeadInjection = '
 				<link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" />
-				<style></style>
+				<style type="text/less">@eqdkpBodyFontSize: 8px;</style>
 				<script>
 					less = {
 						env: "development",
 						async: true,
 						fileAsync: true,
+						// relativeUrls: true,
+						// rootpath: "'.$this->root_path.'",
 						poll: 1000,
 						globalVars: '.json_encode($this->getLessVars()).',
 					};

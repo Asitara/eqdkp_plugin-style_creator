@@ -31,6 +31,13 @@
 	// new(less.Parser)({ env: 'production' }).parse('', function(e,t){});
 	
 	
+	/*
+		Workarounds method :::::
+		<style type="text/less"> ..my less code..</style>
+		then do: less.refresh()
+	*/
+	
+	
 </script>
 <!-- ENDIF -->
 
