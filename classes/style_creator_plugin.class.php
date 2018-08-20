@@ -108,16 +108,29 @@ if(!class_exists('style_creator_plugin')){
 			}
 			
 			$strHeadInjection = '
-				<link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" />
-				<style type="text/less">@eqdkpBodyFontSize: 8px;</style>
+				<!-- <link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" /> -->
+				<style id="scp_less_src">
+					@import (less) "{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css";
+					'.strip_tags($this->user->style['additional_less']).';
+					@import (less, optional) "{TEMPLATE_PATH}/custom.css";
+				</style>
+				<style id="scp_less_dist" type="text/less">
+					@import (less) "{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css";
+					'.strip_tags($this->user->style['additional_less']).';
+					@import (less, optional) "{TEMPLATE_PATH}/custom.css";
+				</style>
+				
+				
 				<script>
 					less = {
 						env: "development",
-						async: true,
-						fileAsync: true,
+						useFileCache: false,
+						// async: true,
+						// fileAsync: true,
+						// poll: 1000,
 						// relativeUrls: true,
-						// rootpath: "'.$this->root_path.'",
-						poll: 1000,
+						// rootpath: "",
+						// errorReporting: function(a,b,c){ console.log(a,b,c); },
 						globalVars: '.json_encode($this->getLessVars()).',
 					};
 					additional_less = '.json_encode($this->user->style['additional_less']).';

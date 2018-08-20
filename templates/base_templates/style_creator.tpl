@@ -35,6 +35,16 @@
 		Workarounds method :::::
 		<style type="text/less"> ..my less code..</style>
 		then do: less.refresh()
+		--------------------------------------------
+		Wir schreiben in das <style id="scp_"> Element @import bla gedöns
+		Nachdem die Seite geladen ist adden wir das Attribute type="text/less",
+		damit es nicht beim sete laden bereits less veranlasst zu kompilieren
+		Wir sollten ebenfalls den Inhalt des Elements dumpen in einer JS Variable
+		Theorteisch reicht dann ein manuelles kompilieren im Sinne von:
+			less.refresh().then(function(){
+				$('style#scp_').attr('type', 'text/less').text( my_dumped_less_code );
+			});
+		
 	*/
 	
 	
