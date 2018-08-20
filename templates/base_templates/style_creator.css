@@ -1,9 +1,13 @@
 /* ./../plugins/style_creator/templates/base_templates/style_creator.css*/
 
 
+
+// TODO: Die genutzen Background Bilder bearbeiten das sie bündig mit dem Rand sind (schatten entfernen), dann das layout der dialog_box neu ordnen, anshcließend Bilder einfügen und css box-shadow nutzen
+
+
 #scp_overlay {
 	
-	display: none !important;
+	// display: none !important;
 	
 	
   position: fixed;
@@ -14,15 +18,15 @@
   z-index: 999999;
   text-align: left;
 }
-.scp_control_box {
-  position: relative;
+.scp_dialog {
+  position: absolute;
   top: 70px;
   left: 200px;
   height: 400px;
   width: 800px;
   background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_strong.png") no-repeat center / 100% 100%;
 }
-.scp_title_bar {
+.scp_dialog_title {
   position: absolute;
   top: -10px;
   left: -1px;
@@ -35,7 +39,7 @@
   color: #da4141;
   background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar.png") no-repeat center / 100% 100%;
 }
-.scp_title_bar:after {
+.scp_dialog_title:after {
   content: '';
   position: absolute;
   top: 0;
@@ -45,7 +49,7 @@
   width: 35px;
   background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar_edge.png") no-repeat center / 100% 100%;
 }
-.scp_button_close {
+.scp_dialog_close {
   position: absolute;
   top: 5px;
   right: 10px;
@@ -57,38 +61,101 @@
 .scp_button_close:hover {
   background: url("../../../../plugins/style_creator/templates/base_templates/images/button_close_hover.png") no-repeat center / 100% 100%;
 }
-.scp_control_box_head {
-  position: relative;
-  top: 35px;
-  left: 15px;
-  width:calc(100% - 30px);
+.scp_dialog_head {
+  margin: 35px 15px 0 15px;
   height: 30px;
   background: #041a;
 }
-.scp_control_box_body {
+.scp_dialog_body {
+	height: calc(~'100% - 75px');	// calc 100% minus the dialog_head( margin, height) in px
+	margin: 0 15px 10px 15px;
   display: flex;
   flex-wrap: wrap;
-  position: relative;
-  top: 40px;
-  left: 15px;
-  width:calc(100% - 30px);
-  height: calc(100% - 80px);
 }
-.scp_control_box_menu {
+.scp_dialog_menu {
   list-style: none;
   overflow-y: auto;
   flex: 0 0 170px;
   height: 100%;
 }
-.scp_control_box_menu > li {
+.scp_dialog_menu > li {
   padding: 10px;
   margin: 5px 3px 5px 0px;
   background: rgba(200, 90, 30, 0.5);
   border: 1px solid rgba(200, 90, 30, 0.5);
 }
-.scp_control_box_content {
+.scp_dialog_content {
+  height: 100%;
   padding: 8px 12px;
+  box-sizing: border-box;
   flex: 1 1 auto;
   overflow-y: auto;
   background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_soft.png") no-repeat center / 100% 100%;
 }
+
+
+// layout
+.scp_controls dl {
+	margin: 2px 2px;
+	border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.scp_controls dt {
+	font-size: 10px;
+}
+.scp_controls dt label {
+	display: block;
+	padding: 2px 0 4px;
+	font-size: 12px;
+	font-weight: bold;
+}
+.scp_controls dt span {
+	float: right;
+}
+.scp_controls dd {
+	padding: 5px 0 10px 10px;
+}
+
+// input text
+.scp_controls input[type="text"] {
+	margin: 0;
+	padding: 3px 3px;
+	font-size: 12px;
+	border-radius: 0;
+	line-height: 1;
+	background: hsla(100, 0, 0, 0);
+}
+
+// colorpicker
+.scp_controls .colorpicker {
+	display: inline-block !important;
+	margin-right: -1px !important;
+}
+.scp_controls .sp-replacer {
+	height: 20px;
+	padding: 0;
+	border-radius: 0;
+	box-sizing: border-box;
+}
+.scp_controls .sp-replacer .sp-dd {
+	 font-size: 10px;
+	 line-height: 1;
+	 padding: 3px 5px 0 0;
+}
+
+
+// radio
+.scp_controls .scp_controls_radio_vert label {
+	display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+

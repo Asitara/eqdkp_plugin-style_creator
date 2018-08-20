@@ -8,28 +8,6 @@
 	$('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="toggleStyleCreator();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
 	
 	
-	var parser = new window.less.Parser(less);
-	// parser.parse(additional_less, function(error, result){
-	// 	// if(!error) console.log('DEBUG', result.toCSS());
-	// 	// else console.log('DEBUG', error);
-	// });
-	
-	try {
-		parser.parse('color:#000;', function(error, result){
-			if(!error){
-                console.log('DEBUG', result.toCSS());
-			}
-			else{
-				console.log('DEBUG', error);
-			}
-		});
-	}
-	catch (error){
-		console.log('MyError', error);
-	}
-	
-	// new(less.Parser)({ env: 'production' }).parse('', function(e,t){});
-	
 	
 	/*
 		Workarounds method :::::
@@ -53,13 +31,65 @@
 
 
 <div id="scp_overlay">
-	<div class="scp_control_box">
-		<h1 class="scp_title_bar">{L_style_creator}</h1>
-		<button class="scp_button_close" type="button"></button>
-		<div class="scp_control_box_head">(PLACEHOLDER)</div>
-		<div class="scp_control_box_body">
-			<ul class="scp_control_box_menu"><li>(PLACEHOLDER)</li></ul>
-			<div class="scp_control_box_content">(PLACEHOLDER)</div>
+	<div class="scp_dialog">
+		<div class="scp_dialog_head">
+			<h1 class="scp_dialog_title">{L_style_creator}</h1>
+			<button class="scp_dialog_close" type="button"></button>
+			(PLACEHOLDER)
+		</div>
+		<div class="scp_dialog_body">
+			<ul class="scp_dialog_menu">
+				<li>(PLACEHOLDER)</li>
+				<li>(PLACEHOLDER)</li>
+				<li>(PLACEHOLDER)</li>
+				<li>(PLACEHOLDER)</li>
+			</ul>
+			<div class="scp_dialog_content">
+				<fieldset class="scp_controls">
+					<dl>
+						<dt><label>(PLACEHOLDER)</label><span>(PLACEHOLDER)</span></dt>
+						<dd><input type="text" /></dd>
+					</dl>
+					<dl>
+						<dt><label>(PLACEHOLDER)</label></dt>
+						<dd>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label>(PLACEHOLDER)</label></dt>
+						<dd class="scp_controls_radio_vert">
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+							<label><input type="radio" /> (PLACEHOLDER)</label>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label>(PLACEHOLDER)</label>(PLACEHOLDER)</dt>
+						<dd>
+							<input value="#555" class="input colorpicker" size="14" readonly type="text">
+							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label>(PLACEHOLDER)</label></dt>
+						<dd>
+							<input value="#555" class="input colorpicker" size="14" readonly type="text">
+							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label>(PLACEHOLDER)</label><span>(PLACEHOLDER)</span>(PLACEHOLDER) (PLACEHOLDER) (PLACEHOLDER)</dt>
+						<dd>
+							<input value="#555" class="input colorpicker" size="14" readonly type="text">
+							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
+						</dd>
+					</dl>
+				</fieldset>
+			</div>
 		</div>
 	</div>
 </div>
