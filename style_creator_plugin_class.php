@@ -51,7 +51,7 @@ class style_creator extends plugin_generic {
 			'plus_version'      => '2.3'
 		]);
 		
-		// -- Register our permissions ------------------------
+		// -- Register Permissions ----------------------------
 		// permissions: 'a'=admins, 'u'=user
 		// ('a'/'u', Permission-Name, Enable? 'Y'/'N', Language string, array of user-group-ids that should have this permission)
 		// Groups: 1 = Guests, 2 = Super-Admin, 3 = Admin, 4 = Member

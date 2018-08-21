@@ -25,30 +25,73 @@ if(!class_exists('style_creator_plugin')){
 	class style_creator_plugin extends gen_class {
 		public function __construct(){}
 		
-		public function getLessVars(){
+		public function getLessVars($format_simple=false){
 			$style = $this->user->style;
 			
-			$template_background_file = '';
-			switch($style['background_type']){
-				case 1: //Game
-					$template_background_file = $this->root_path.'games/'.$this->config->get('default_game').'/template_background.jpg';
-					break;
-					
-				case 2: //Own
-					if($style['background_img'] != ''){
-						if (strpos($style['background_img'],'://') > 1) $template_background_file = $style['background_img'];
-						else $template_background_file = $this->root_path.$style['background_img'];
-					}
-					break;
-					
-				default: //Style
-					if(is_file($this->root_path.'templates/'.$style['template_path'].'/images/template_background.png'))
-						$template_background_file = $this->root_path.'templates/'.$style['template_path'].'/images/template_background.png';
-					else $template_background_file = $this->root_path.'templates/'.$style['template_path'].'/images/template_background.jpg';
-			}
-			if($template_background_file == '') $template_background_file = $root_path.'games/'.$this->config->get('default_game').'/template_background.jpg';
+			/*
+			$arrLessVars = ['environment' => [
+				'eqdkpURL' => [
+					'value' => '"'.$this->env->link.'"',
+				],
+				'eqdkpGame' => [
+					'value' => '"'.$this->config->get('default_game').'"',
+				],
+				'eqdkpServerPath' => [
+					'value' => '"'.$this->server_path.'"',
+				],
+				'eqdkpRootPath' => [
+					'value' => '"'.$this->root_path.'"',
+				],
+				'eqdkpImagePath' => [
+					'value' => '"'.$this->root_path.'images/"',
+				],
+				'eqdkpImageURL' => [
+					'value' => '"'.$this->env->link.'images/"',
+				],
+				'eqdkpTemplatePathLess' => [
+					'value' => '"./templates/'.$style['template_path'].'/"',
+				],
+				'eqdkpTemplateImagePath' => [
+					'value' => '"'.$this->root_path.'templates/'.$style['template_path'].'/images/"',
+				],
+				'eqdkpTemplateImageURL' => [
+					'value' => '"'.$this->env->link.'templates/'.$style['template_path'].'/images/"',
+				],
+				'eqdkpTemplateBanner' => [
+					'value' => '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
+				],
+				'eqdkpBannerImage' => [
+					'value' => '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
+				],
+				'eqdkpTemplateBackground' => [
+					'value' => '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
+				],
+				'eqdkpBackgroundImage' => [
+					'value' => '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
+				],
+				'eqdkpBackgroundImagePosition' => [
+					'value' => (($style['background_pos'] == 'normal')? 'scroll' : 'fixed'),
+				],
+				'eqdkpPortalWidth' => [
+					'value' => ($style['portal_width'] != '')? $style['portal_width'] : '900px',
+				],
+				'eqdkpColumnLeftWidth' => [
+					'value' => ($style['column_left_width'] != '')? $style['column_left_width'] : '200px',
+				],
+				'eqdkpColumnRightWidth' => [
+					'value' => ($style['column_right_width'] != '')? $style['column_right_width'] : '200px',
+				],
+				'eqdkpPortalWidthWithoutBothColumns' => [
+					'value' => (intval($style['portal_width']) - intval($style['column_left_width']) - intval($style['column_right_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
+				],
+				'eqdkpPortalWidthWithoutLeftColumn' => [
+					'value' => (intval($style['portal_width']) - intval($style['column_left_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
+				],
+			]];
+			*/
 			
-			$arrLessVars = [
+			// Add Core/Environment variables
+			$arrLessVars = ['environment' => [
 				'eqdkpURL'							=> '"'.$this->env->link.'"',
 				'eqdkpGame'							=> '"'.$this->config->get('default_game').'"',
 				'eqdkpServerPath'					=> '"'.$this->server_path.'"',
@@ -60,52 +103,67 @@ if(!class_exists('style_creator_plugin')){
 				'eqdkpTemplateImageURL'				=> '"'.$this->env->link.'templates/'.$style['template_path'].'/images/"',
 				'eqdkpTemplateBanner' 				=> '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
 				'eqdkpBannerImage' 					=> '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
-				'eqdkpTemplateBackground' 			=> '"'.$this->replaceSomePathVariables($template_background_file, $this->root_path, $style['template_path']).'"',
-				'eqdkpBackgroundImage' 				=> '"'.$this->replaceSomePathVariables($template_background_file, $this->root_path, $style['template_path']).'"',
-				'eqdkpBackgroundImagePosition'		=> (($style['background_pos'] == 'normal') ? 'scroll' : 'fixed'),
-				'eqdkpPortalWidth' 					=> ($style['portal_width'] != '') ? $style['portal_width'] : '900px',
-				'eqdkpColumnLeftWidth' 				=> ($style['column_left_width'] != '') ? $style['column_left_width'] : '200px',
-				'eqdkpColumnRightWidth' 			=> ($style['column_right_width'] != '') ? $style['column_right_width'] : '200px',
-				'eqdkpPortalWidthWithoutBothColumns' => (intval($style['portal_width']) - intval($style['column_left_width']) - intval($style['column_right_width'])).((strpos($style['portal_width'], '%') !== false) ? '%' : 'px'),
-				'eqdkpPortalWidthWithoutLeftColumn'	=> (intval($style['portal_width']) - intval($style['column_left_width'])).((strpos($style['portal_width'], '%') !== false) ? '%' : 'px'),
-			];
+				'eqdkpTemplateBackground' 			=> '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
+				'eqdkpBackgroundImage' 				=> '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
+				'eqdkpBackgroundImagePosition'		=> (($style['background_pos'] == 'normal')? 'scroll' : 'fixed'),
+				'eqdkpPortalWidth' 					=> ($style['portal_width'] != '')? $style['portal_width'] : '900px',
+				'eqdkpColumnLeftWidth' 				=> ($style['column_left_width'] != '')? $style['column_left_width'] : '200px',
+				'eqdkpColumnRightWidth' 			=> ($style['column_right_width'] != '')? $style['column_right_width'] : '200px',
+				'eqdkpPortalWidthWithoutBothColumns' => (intval($style['portal_width']) - intval($style['column_left_width']) - intval($style['column_right_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
+				'eqdkpPortalWidthWithoutLeftColumn'	=> (intval($style['portal_width']) - intval($style['column_left_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
+			]];
+			foreach($arrLessVars['environment'] as $strVarName => $strVarValue) $arrLessVars['environment'][$strVarName] = ['value' => $strVarValue];
 			
-			foreach($this->styles->styleOptions() as $key => $val){
-				foreach($val as $name => $type){
-					if($name == 'body_font_size') {
-						$arrLessVars[$this->styles->convertNameToLessVar($name)] = (isset($style[$name]) && strlen($style[$name])) ? $style[$name].'px' : '13px';
+			// Add Style variables
+			foreach($this->styles->styleOptions() as $strCategory => $arrCategoryVars){
+				foreach($arrCategoryVars as $strVarName => $strVarType){
+					if($strVarName == 'body_font_size'){
+						$arrLessVars[$strCategory][$this->styles->convertNameToLessVar($strVarName)] = [
+							'value'	=> (isset($style[$strVarName]) && strlen($style[$strVarName]))? $style[$strVarName].'px' : '13px',
+							'type'	=> $strVarType,
+						];
 						continue;
 					}
-					$arrLessVars[$this->styles->convertNameToLessVar($name)] = (isset($style[$name]) && strlen($style[$name])) ? $this->replaceSomePathVariables($style[$name]) : ((stripos($name, 'color')) ? '#000' : '""');
+					$arrLessVars[$strCategory][$this->styles->convertNameToLessVar($strVarName)] = [
+						'value'	=> (isset($style[$strVarName]) && strlen($style[$strVarName]))? $this->replaceSomePathVariables($style[$strVarName]) : ((stripos($strVarName, 'color'))? '#000' : '""'),
+						'type'	=> $strVarType,
+					];
 				}
 			}
 			
-			$arrGameClasses = $this->game->get_primary_classes([], 'english');
-			if(isset($arrGameClasses) && is_array($arrGameClasses)){
-				$strClassColorList = '';
-				foreach($arrGameClasses as $class_id => $class_name) {
-					$strClassColor = ($this->game->get_class_color($class_id) != '') ? $this->game->get_class_color($class_id) : "''";
-					$arrLessVars['eqdkpClasscolor'.$class_id] = $strClassColor;
-					$strClassColorList .= $class_id." '".addcslashes(strtolower($class_name), "'")."' ".$strClassColor.", ";
-				}
-				$arrLessVars['eqdkpGameClasses'] = $strClassColorList;
-			}else{
-				$arrLessVars['eqdkpGameClasses'] = "''";
+			// Add Game variables
+			foreach($this->game->get_primary_classes() as $intClassID => $strClassName){
+				$arrLessVars['game']['eqdkpClasscolor'.$intClassID] = [
+					'value'	=> ($this->game->get_class_color($class_id) != '') ? $this->game->get_class_color($class_id) : "''",
+					'type'	=> 'color',
+					'label'	=> '"'.$strClassName.'"',
+				];
 			}
 			
-			//NOTE: Finde eine lösung bzg $style['additional_less'] welches irwie interpretiert werden muss seitens LESS...
-			//		In der Theorie würde ich sagen, einfach als <style> mit ausgeben
+			// Change format
+			if($format_simple){
+				$arrFormatted = [];
+				foreach($arrLessVars as $strCategory => $arrCategoryVars){
+					foreach($arrCategoryVars as $strVarName => $arrVarData){
+						$arrFormatted[$strVarName] = $arrVarData['value'];
+					}
+				}
+				$arrLessVars = &$arrFormatted;
+			}
 			
-			// d($arrLessVars);
+			
+			// d($arrLessVars);die;
+			
+			
 			return $arrLessVars;
 		}
 		
-		public function addStyleFiles(){
+		public function init(){
 			
-			$strGlobalVars = ' ';
-			foreach($this->getLessVars() as $var_name => $var_value){
-				$strGlobalVars .= "'".$var_name."':'".$var_value."',";
-			}
+			
+		}
+		
+		public function load(){
 			
 			$strHeadInjection = '
 				<!-- <link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" /> -->
@@ -131,7 +189,7 @@ if(!class_exists('style_creator_plugin')){
 						// relativeUrls: true,
 						// rootpath: "",
 						// errorReporting: function(a,b,c){ console.log(a,b,c); },
-						globalVars: '.json_encode($this->getLessVars()).',
+						globalVars: '.json_encode($this->getLessVars(true)).',
 					};
 					additional_less = '.json_encode($this->user->style['additional_less']).';
 				</script>
@@ -144,6 +202,31 @@ if(!class_exists('style_creator_plugin')){
 			$arrSearch = ['@eqdkpURL', '@eqdkpServerPath', '@eqdkpRootPath', '@eqdkpImagePath', '@eqdkpTemplateImagePath'];
 			$arrReplace = [$this->env->link, $this->server_path, $this->root_path, $this->root_path.'images/', $this->root_path.'templates/'.$this->user->style['template_path'].'/images/'];
 			return str_replace($arrSearch, $arrReplace, $strVar);
+		}
+		
+		private function getStyleBackgroundImage(){
+			$style = $this->user->style;
+			$template_background_file = '';
+			
+			switch($style['background_type']){
+				case 1: //Game
+					$template_background_file = $this->root_path.'games/'.$this->config->get('default_game').'/template_background.jpg';
+					break;
+					
+				case 2: //Own
+					if($style['background_img'] != ''){
+						if(strpos($style['background_img'],'://') > 1) $template_background_file = $style['background_img'];
+						else $template_background_file = $this->root_path.$style['background_img'];
+					}
+					break;
+					
+				default: //Style
+					if(is_file($this->root_path.'templates/'.$style['template_path'].'/images/template_background.png'))
+						$template_background_file = $this->root_path.'templates/'.$style['template_path'].'/images/template_background.png';
+					else $template_background_file = $this->root_path.'templates/'.$style['template_path'].'/images/template_background.jpg';
+			}
+			
+			return ($template_background_file != '')? $template_background_file : $root_path.'games/'.$this->config->get('default_game').'/template_background.jpg';
 		}
 	}
 }

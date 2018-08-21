@@ -22,17 +22,11 @@
 if (!class_exists('style_creator_portal_hook')){
 	class style_creator_portal_hook extends gen_class {
 		public function portal(){
-			// if($this->env->current_page == 'admin/manage_extensions'){
-			// 	$this->tpl->add_js('
-			// 	function toggleStyleCreator(){
-			// 		sessionStorage.setItem("test", 1);
-			// 	}
-			// 	$(\'#plus_plugins_tab button[onclick$="create\'"]\').before(\'<button class="mainoption" type="button" onclick="toggleStyleCreator();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>\');
-			// ');
-			// }
-			$this->scp->addStyleFiles();
-			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
-			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
+			
+			$this->scp->init();
+			// $this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
+			// $this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
+			
 		}
 		
 	} //end class
