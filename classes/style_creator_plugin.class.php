@@ -159,8 +159,16 @@ if(!class_exists('style_creator_plugin')){
 		}
 		
 		public function init(){
+			$this->tpl->assign_vars([
+				'SCP_LOAD' => false,
+				'SCP_CSRF_TOKEN' => $this->user->csrfPostToken(),
+			]);
 			
+			if($this->in->exists('scp_toggle')) $this->toggle();
 			
+			if($this->config->get('scp_enabled', 'style_creator')) $this->load();
+			
+			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
 		}
 		
 		public function load(){
@@ -178,24 +186,39 @@ if(!class_exists('style_creator_plugin')){
 					@import (less, optional) "{TEMPLATE_PATH}/custom.css";
 				</style>
 				
-				
 				<script>
 					less = {
 						env: "development",
 						useFileCache: false,
 						// async: true,
 						// fileAsync: true,
-						// poll: 1000,
+						poll: 2000,
 						// relativeUrls: true,
 						// rootpath: "",
-						// errorReporting: function(a,b,c){ console.log(a,b,c); },
+						// errorReporting: SCP.error_handler,
 						globalVars: '.json_encode($this->getLessVars(true)).',
 					};
-					additional_less = '.json_encode($this->user->style['additional_less']).';
 				</script>
-				<script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js"></script>
+				<!-- <script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js"></script> -->
 			';
+			
+			$this->tpl->assign_vars(['SCP_LOAD' => true]);
+			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
 			$this->tpl->add_listener('head', $strHeadInjection, true);
+		}
+		
+		public function toggle($return=false){
+			$error = true;
+			
+			$blnCSRF = $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken()));
+			$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
+			if($blnCSRF){
+				$this->config->set('scp_enabled', !$this->config->get('scp_enabled', 'style_creator'), 'style_creator');
+				$error = false;
+			}
+			
+			if($return) return !$error;
+			die(json_encode(['error' => $error]));
 		}
 		
 		private function replaceSomePathVariables($strVar){

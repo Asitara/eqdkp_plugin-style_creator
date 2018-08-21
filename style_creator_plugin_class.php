@@ -35,8 +35,8 @@ class style_creator extends plugin_generic {
 			'name'              => 'Style Creator',
 			'code'              => 'style_creator',
 			'path'              => 'style_creator',
-			// 'contact'           => '',
-			// 'template_path'     => 'plugins/style_creator/templates/',
+			'contact'           => '',
+			'template_path'     => 'plugins/style_creator/templates/',
 			'icon'              => 'fa fa-list-alt',
 			'version'           => $this->version,
 			'author'            => $this->copyright,
@@ -70,4 +70,7 @@ class style_creator extends plugin_generic {
 		// -- Hooks -------------------------------------------
 		$this->add_hook('portal', 'style_creator_portal_hook', 'portal');
 	}
+	
+	// NOTE: Maybe we should add here the un/install stuff with config->set('scp_enabled')
+	
 }

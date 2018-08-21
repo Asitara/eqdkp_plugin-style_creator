@@ -1,13 +1,40 @@
 
-<!-- IF TEMPLATE_CLASS == 'admin_manage_extensions' -->
 <script>
-	function toggleStyleCreator(){
-		if(sessionStorage.getItem('test') == 1) sessionStorage.setItem('test', 0);
-		else sessionStorage.setItem('test', 1);
-	}
-	$('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="toggleStyleCreator();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
 	
-	
+	$(function(){
+		var SCP = {
+			'init': function(){
+				
+				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js', function( data, textStatus, jqxhr ) {
+					// error_handler nutzen wenn nicht geladen
+				});
+			},
+			'toggle': function(){
+				$.post(mmocms_controller_path+mmocms_sid+'&scp_toggle', {'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
+					function(response){
+						response = JSON.parse(response);
+						if(!response.error){
+							// custom_message with function.on(click) = location.reload()
+							location.reload();
+						}else{
+							// custom_message
+						}
+				});
+			},
+			'msg_box': function(){
+			
+			},
+			'error_handler': function(a,b,c){
+				alert('LESS Error: siehe Konsole');console.log(a,b,c);
+			},
+		};
+		
+		
+		// Inject ToggleSCP Button
+		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
+		
+	});
+
 	
 	/*
 		Workarounds method :::::
@@ -27,9 +54,8 @@
 	
 	
 </script>
-<!-- ENDIF -->
 
-
+<!-- IF SCP_LOAD -->
 <div id="scp_overlay">
 	<div class="scp_dialog">
 		<div class="scp_dialog_head">
@@ -94,7 +120,7 @@
 	</div>
 </div>
 
-
+<!-- ENDIF -->
 
 
 <!-- <script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js" data-env="development"></script> -->
