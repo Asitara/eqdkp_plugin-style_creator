@@ -98,7 +98,7 @@ if(!class_exists('style_creator_plugin')){
 				'eqdkpRootPath'						=> '"'.$this->root_path.'"',
 				'eqdkpImagePath'					=> '"'.$this->root_path.'images/"',
 				'eqdkpImageURL'						=> '"'.$this->env->link.'images/"',
-				'eqdkpTemplatePathLess' 			=> '"./templates/'.$style['template_path'].'/"',
+				'eqdkpTemplatePath' 				=> '"./templates/'.$style['template_path'].'/"',
 				'eqdkpTemplateImagePath' 			=> '"'.$this->root_path.'templates/'.$style['template_path'].'/images/"',
 				'eqdkpTemplateImageURL'				=> '"'.$this->env->link.'templates/'.$style['template_path'].'/images/"',
 				'eqdkpTemplateBanner' 				=> '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
@@ -159,14 +159,29 @@ if(!class_exists('style_creator_plugin')){
 		}
 		
 		public function init(){
+			
+			$style_code = $this->user->style['template_path'];
+			$style_path = $this->root_path.'templates/'.$style_code.'/';
+			$arrLoadOrder = [
+				['label'=>'core.css', 'load'=>true, 'code'=>'@import (less) "'.$this->root_path.'libraries/jquery/core/core.css";'],
+				['label'=>'jquery.less', 'load'=>true, 'code'=>'@import (optional) "'.$style_path.'jquery.less";'],
+				['label'=>'eqdkpplus.css', 'load'=>true, 'code'=>'@import (less) "'.$this->root_path.'templates/eqdkpplus.css";'],
+				['label'=>$style_code.'.css', 'load'=>true, 'code'=>'@import (less) "'.$style_path.$style_code.'.css";'],
+				['label'=>'additinal_less (Style Settings)', 'load'=>true, 'code'=>strip_tags($this->user->style['additional_less'])],
+				['label'=>'custom.css', 'load'=>true, 'code'=>'@import (less, optional) "'.$style_path.'custom.css";'],
+			];
+			
 			$this->tpl->assign_vars([
-				'SCP_LOAD' => false,
-				'SCP_CSRF_TOKEN' => $this->user->csrfPostToken(),
+				'SCP_LOAD'				=> false,
+				'SCP_CSRF_TOKEN'		=> $this->user->csrfPostToken(),
+				'SCP_GLOBAL_VARS'		=> json_encode($this->getLessVars(true)),
+				'SCP_LOAD_ORDER'		=> json_encode($arrLoadOrder),
+				'SCP_ADDITIONAL_LESS'	=> strip_tags($this->user->style['additional_less']),
 			]);
 			
 			if($this->in->exists('scp_toggle')) $this->toggle();
 			
-			if($this->config->get('scp_enabled', 'style_creator')) $this->load();
+			// if($this->config->get('scp_enabled', 'style_creator')) $this->load();
 			
 			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
 		}

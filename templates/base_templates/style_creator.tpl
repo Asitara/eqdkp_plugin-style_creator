@@ -1,12 +1,36 @@
 
 <script>
-	
+	var SCP, less;
 	$(function(){
-		var SCP = {
+		SCP = {
+			'load_order': {SCP_LOAD_ORDER},
+			// 'additional_less': {SCP_ADDITIONAL_LESS},
+			'global_vars': {SCP_GLOBAL_VARS},
 			'init': function(){
+				self = this;
 				
-				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js', function( data, textStatus, jqxhr ) {
-					// error_handler nutzen wenn nicht geladen
+				less = {
+					env: 'development',
+					useFileCache: false,
+					// async: true,
+					// fileAsync: true,
+					poll: 2000,
+					// relativeUrls: true,
+					// rootpath: '',
+					// errorReporting: self.error_handler,
+					globalVars: self.global_vars,
+				};
+				
+				// Head Injection of <style> ELements with load_order code
+				scp_less_src = '';
+				$(this.load_order).each(function(index, file){
+					if(file.load) scp_less_src += self.load_order[index].code;
+				});
+				$('html > head').append('<style id="scp_less_dist" type="text/less">'+scp_less_src+'</style>');
+				
+				// Load less.js file with ajax (prevent: immediate rendering)
+				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js').fail(function( jqxhr, settings, exception ){
+					// NOTE: here we need error_handler stuff
 				});
 			},
 			'toggle': function(){
@@ -25,10 +49,10 @@
 			
 			},
 			'error_handler': function(a,b,c){
-				alert('LESS Error: siehe Konsole');console.log(a,b,c);
+				console.log(a,b,c);alert('LESS Error: siehe Konsole');
 			},
 		};
-		
+		SCP.init();
 		
 		// Inject ToggleSCP Button
 		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
