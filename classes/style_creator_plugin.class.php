@@ -167,7 +167,7 @@ if(!class_exists('style_creator_plugin')){
 				['label'=>'jquery.less', 'load'=>true, 'code'=>'@import (optional) "'.$style_path.'jquery.less";'],
 				['label'=>'eqdkpplus.css', 'load'=>true, 'code'=>'@import (less) "'.$this->root_path.'templates/eqdkpplus.css";'],
 				['label'=>$style_code.'.css', 'load'=>true, 'code'=>'@import (less) "'.$style_path.$style_code.'.css";'],
-				['label'=>'additinal_less (Style Settings)', 'load'=>true, 'code'=>strip_tags($this->user->style['additional_less'])],
+				['label'=>'additional_less (Style Settings)', 'load'=>true, 'code'=>'additional_less'],
 				['label'=>'custom.css', 'load'=>true, 'code'=>'@import (less, optional) "'.$style_path.'custom.css";'],
 			];
 			
@@ -176,7 +176,7 @@ if(!class_exists('style_creator_plugin')){
 				'SCP_CSRF_TOKEN'		=> $this->user->csrfPostToken(),
 				'SCP_GLOBAL_VARS'		=> json_encode($this->getLessVars(true)),
 				'SCP_LOAD_ORDER'		=> json_encode($arrLoadOrder),
-				'SCP_ADDITIONAL_LESS'	=> strip_tags($this->user->style['additional_less']),
+				'SCP_ADDITIONAL_LESS'	=> "'".str_replace("'", "\'", strip_tags($this->user->style['additional_less']))."'"
 			]);
 			
 			if($this->in->exists('scp_toggle')) $this->toggle();

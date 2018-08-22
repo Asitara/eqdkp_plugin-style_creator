@@ -1,48 +1,42 @@
 
 <script>
+	
+	// TODO: refactor: sort object elements --- exclude SCP to seperate js file
+	
 	var SCP, less;
 	$(function(){
 		SCP = {
 			'load_order': {SCP_LOAD_ORDER},
-			// 'additional_less': {SCP_ADDITIONAL_LESS},
+			'additional_less': {SCP_ADDITIONAL_LESS},
 			'global_vars': {SCP_GLOBAL_VARS},
 			'init': function(){
-				self = this;
 				
 				less = {
 					env: 'development',
-					useFileCache: false,
-					// async: true,
-					// fileAsync: true,
-					poll: 2000,
-					// relativeUrls: true,
-					// rootpath: '',
+					// useFileCache: false,		// disabled, inline-css ignore this option
+					// async: true,				// disabled, don't know if it re-sort load_order
+					// fileAsync: true,			// disabled, don't know if it re-sort load_order
+					// poll: 2000,				// disabled, we use own watch_mode
+					// relativeUrls: true,		// disabled, seems not working - workaround in preProcessor
+					// rootpath: '',			// disabled, seems not working - workaround in preProcessor
 					// errorReporting: self.error_handler,
-					globalVars: self.global_vars,
+					plugins: [SCP.less_plugin],
+					globalVars: SCP.global_vars,
 				};
 				
-				// Head Injection of <style> ELements with load_order code
-				scp_less_src = '';
-				$(this.load_order).each(function(index, file){
-					if(file.load) scp_less_src += self.load_order[index].code;
-				});
-				$('html > head').append('<style id="scp_less_dist" type="text/less">'+scp_less_src+'</style>');
+				// Add executable style element to <head>
+				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
+				SCP.gen_less_src();
 				
 				// Load less.js file with ajax (prevent: immediate rendering)
-				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js').fail(function( jqxhr, settings, exception ){
-					// NOTE: here we need error_handler stuff
-				});
+				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js');
+				
 			},
 			'toggle': function(){
 				$.post(mmocms_controller_path+mmocms_sid+'&scp_toggle', {'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
 					function(response){
 						response = JSON.parse(response);
-						if(!response.error){
-							// custom_message with function.on(click) = location.reload()
-							location.reload();
-						}else{
-							// custom_message
-						}
+						if(!response.error) location.reload();
 				});
 			},
 			'msg_box': function(){
@@ -51,6 +45,63 @@
 			'error_handler': function(a,b,c){
 				console.log(a,b,c);alert('LESS Error: siehe Konsole');
 			},
+			
+			'refresh': function(new_vars=false){
+				less_vars = (typeof new_vars == 'object')? {...SCP.global_vars, ...new_vars} : SCP.global_vars;
+				// TODO: Dump changed vars & re-use
+				SCP.gen_less_src();
+				
+				return less.modifyVars(less_vars);
+			},
+			'poll': 2000,
+			'watch_timer': null,
+			'watch_mode': false,
+			'watch': function(){
+				SCP.watch_mode = true;
+				start_MS = new Date();
+				
+				SCP.refresh();
+			},
+			'unwatch': function(){
+				clearTimeout(SCP.watch_timer);
+				SCP.watch_mode = false;
+			},
+			
+			'gen_less_src': function(){
+				scp_less_src = '';
+				$(SCP.load_order).each(function(index){
+					if(SCP.load_order[index].load) scp_less_src += ((SCP.load_order[index].code == 'additional_less')? SCP.additional_less : SCP.load_order[index].code) +'\n';
+				});
+				$('#scp_less_dist').attr('type','text/less').text(scp_less_src);
+				// TODO: Make this smoother if page reload, by spliting into _less_src & _less_dist
+				return scp_less_src;
+			},
+			
+			'less_plugin': {
+				install: function(less, pluginManager){
+					pluginManager.addPreProcessor({
+						process: function (src, extra){
+							SCP.parse_time = new Date();
+							
+							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly (try: follow commented code)
+							// src = SCP.gen_less_src();
+							
+							return src;
+						}
+					});
+					pluginManager.addPostProcessor({
+						process: function (src, extra){
+							parse_time = new Date() - SCP.parse_time;
+							parse_time_tolerance = parse_time / .66;
+							console.log('Less has finished after '+parse_time+'ms.');
+							
+							if(SCP.watch_mode) SCP.watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time_tolerance)? SCP.poll : parse_time_tolerance));
+							
+							return src;
+						}
+					});
+				}
+			},
 		};
 		SCP.init();
 		
@@ -58,23 +109,19 @@
 		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
 		
 	});
-
 	
-	/*
-		Workarounds method :::::
-		<style type="text/less"> ..my less code..</style>
-		then do: less.refresh()
-		--------------------------------------------
-		Wir schreiben in das <style id="scp_"> Element @import bla gedöns
-		Nachdem die Seite geladen ist adden wir das Attribute type="text/less",
-		damit es nicht beim sete laden bereits less veranlasst zu kompilieren
-		Wir sollten ebenfalls den Inhalt des Elements dumpen in einer JS Variable
-		Theorteisch reicht dann ein manuelles kompilieren im Sinne von:
-			less.refresh().then(function(){
-				$('style#scp_').attr('type', 'text/less').text( my_dumped_less_code );
-			});
-		
-	*/
+	
+	// TODO: Include this in SCP.init() with pre-defined files @ url.match()
+	var preOpen = XMLHttpRequest.prototype.open;
+	XMLHttpRequest.prototype.open = function(method, url) {
+		var args = Array.prototype.slice.call(arguments, 0);
+		if (url.match(/\.css$/)) {
+			url += '?timestamp='+Date.now();
+			args[1]=url;
+		}
+		return preOpen.apply(this, args);
+	}
+	
 	
 	
 </script>
@@ -146,9 +193,5 @@
 
 <!-- ENDIF -->
 
-
-<!-- <script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js" data-env="development"></script> -->
-
-<!-- theoretisch können wir hier die script src less.js aufrufen etc, davor kommt noch ein style tag mit den additional less und tada :D -->
 
 

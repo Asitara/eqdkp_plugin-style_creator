@@ -2,6 +2,37 @@
 
 
 
+// TODO: use special mixin for complementary & subtly color sheme (with this we can simply generate 1-click premade themes)
+// /* Mixin: Complementary Color Scheme */
+// @base: #663333;
+// @complement1: spin(@base, 180);
+// @complement2: darken(spin(@base, 180), 5%);
+// @lighten1: lighten(@base, 15%);
+// @lighten2: lighten(@base, 30%);
+//
+// /* Implementation */
+// .one   {color: @base;}
+// .two   {color: @complement1;}
+// .three {color: @complement2;}
+// .four  {color: @lighten1;}
+// .five  {color: @lighten2;}
+//
+// /* Mixin: Subtle Color Scheme */
+// @base: #663333;
+// @lighter1: lighten(spin(@base, 5), 10%);
+// @lighter2: lighten(spin(@base, 10), 20%);
+// @darker1: darken(spin(@base, -5), 10%);
+// @darker2: darken(spin(@base, -10), 20%);
+//
+// /* Implementation */
+// .one   {color: @base;}
+// .two   {color: @lighter1;}
+// .three {color: @lighter2;}
+// .four  {color: @darker1;}
+// .five  {color: @darker2;}
+
+
+
 // TODO: Die genutzen Background Bilder bearbeiten das sie bündig mit dem Rand sind (schatten entfernen), dann das layout der dialog_box neu ordnen, anshcließend Bilder einfügen und css box-shadow nutzen
 
 
