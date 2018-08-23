@@ -25,6 +25,82 @@ if(!class_exists('style_creator_plugin')){
 	class style_creator_plugin extends gen_class {
 		public function __construct(){}
 		
+		public $allowed_variables = [
+			'eqdkpAttendeesColumns',
+			'eqdkpLogoPosition',
+			'eqdkpFaviconImg',
+			'eqdkpBannerImg',
+			'eqdkpBackgroundImg',
+			'eqdkpBackgroundPos',
+			'eqdkpBackgroundType',
+			'eqdkpColumnLeftWidth',
+			'eqdkpColumnRightWidth',
+			'eqdkpPortalWidth',
+			'eqdkpBodyBackgroundColor',
+			'eqdkpBodyFontColor',
+			'eqdkpBodyFontSize',
+			'eqdkpBodyFontFamily',
+			'eqdkpBodyLinkColor',
+			'eqdkpBodyLinkColorHover',
+			'eqdkpBodyLinkDecoration',
+			'eqdkpContainerBackgroundColor',
+			'eqdkpContainerBorderColor',
+			'eqdkpContentBackgroundColor',
+			'eqdkpContentFontColor',
+			'eqdkpContentFontColorHeadings',
+			'eqdkpContentLinkColor',
+			'eqdkpContentLinkColorHover',
+			'eqdkpContentBorderColor',
+			'eqdkpContentAccentColor',
+			'eqdkpContentContrastColor',
+			'eqdkpContentContrastBackgroundColor',
+			'eqdkpContentContrastBorderColor',
+			'eqdkpContentHighlightColor',
+			'eqdkpContentPositiveColor',
+			'eqdkpContentNegativeColor',
+			'eqdkpContentNeutralColor',
+			'eqdkpUserareaBackgroundColor',
+			'eqdkpUserareaFontColor',
+			'eqdkpUserareaLinkColor',
+			'eqdkpUserareaLinkColorHover',
+			'eqdkpTableThBackgroundColor',
+			'eqdkpTableThFontColor',
+			'eqdkpTableTrFontColor',
+			'eqdkpTableTrBackgroundColor1',
+			'eqdkpTableTrBackgroundColor2',
+			'eqdkpTableTrBackgroundColorHover',
+			'eqdkpTableBorderColor',
+			'eqdkpMenuBackgroundColor',
+			'eqdkpMenuFontColor',
+			'eqdkpMenuItemBackgroundColor',
+			'eqdkpMenuItemBackgroundColorHover',
+			'eqdkpMenuItemFontColorHover',
+			'eqdkpSidebarBackgroundColor',
+			'eqdkpSidebarFontColor',
+			'eqdkpSidebarBorderColor',
+			'eqdkpButtonBackgroundColor',
+			'eqdkpButtonFontColor',
+			'eqdkpButtonBorderColor',
+			'eqdkpButtonBackgroundColorHover',
+			'eqdkpButtonFontColorHover',
+			'eqdkpButtonBorderColorHover',
+			'eqdkpInputBackgroundColor',
+			'eqdkpInputBorderColor',
+			'eqdkpInputFontColor',
+			'eqdkpInputBackgroundColorActive',
+			'eqdkpInputBorderColorActive',
+			'eqdkpInputFontColorActive',
+			'eqdkpMiscColor1',
+			'eqdkpMiscColor2',
+			'eqdkpMiscColor3',
+			'eqdkpMiscText1',
+			'eqdkpMiscText2',
+			'eqdkpMiscText3',
+			'eqdkpAdditionalLess',
+			'eqdkpAdditionalFields',
+			'eqdkpEditorTheme',
+		];
+		
 		public function getLessVars($format_simple=false){
 			$style = $this->user->style;
 			
@@ -182,44 +258,113 @@ if(!class_exists('style_creator_plugin')){
 			if($this->in->exists('scp_toggle')) $this->toggle();
 			
 			// if($this->config->get('scp_enabled', 'style_creator')) $this->load();
-			
+			$this->loadPage();
+			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
 			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
 		}
 		
-		public function load(){
+		public function loadPage(){
 			
-			$strHeadInjection = '
-				<!-- <link href="{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css" type="text/css" rel="stylesheet/less" /> -->
-				<style id="scp_less_src">
-					@import (less) "{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css";
-					'.strip_tags($this->user->style['additional_less']).';
-					@import (less, optional) "{TEMPLATE_PATH}/custom.css";
-				</style>
-				<style id="scp_less_dist" type="text/less">
-					@import (less) "{TEMPLATE_PATH}/'.$this->user->style['template_path'].'.css";
-					'.strip_tags($this->user->style['additional_less']).';
-					@import (less, optional) "{TEMPLATE_PATH}/custom.css";
-				</style>
+			foreach($this->getLessVars() as $strCategory => $arrCategoryVars){
+				if($strCategory == 'environment') continue;
 				
-				<script>
-					less = {
-						env: "development",
-						useFileCache: false,
-						// async: true,
-						// fileAsync: true,
-						poll: 2000,
-						// relativeUrls: true,
-						// rootpath: "",
-						// errorReporting: SCP.error_handler,
-						globalVars: '.json_encode($this->getLessVars(true)).',
-					};
-				</script>
-				<!-- <script src="{EQDKP_ROOT_PATH}plugins/style_creator/less/less.js"></script> -->
-			';
+				$this->tpl->assign_block_vars('scp_style_settings', [
+					'NAME'	=> $strCategory,
+					'LABEL'	=> $this->user->lang('scp_style_settings_cat_'.$strCategory),
+				]);
+				
+				foreach($arrCategoryVars as $strVarName => $arrVarData){
+					if(!in_array($strVarName, $this->allowed_variables)) continue;
+						
+					$this->tpl->assign_block_vars('scp_style_settings.controls', [
+						'NAME'	=> $strVarName,
+						'LABEL'	=> $arrVarData['label'],
+						'HELP'	=> $arrVarData['label'],
+						'INPUT'	=> $this->genInput(array_merge($arrVarData, ['name' => $strVarName])),
+					]);
+				}
+			}
 			
-			$this->tpl->assign_vars(['SCP_LOAD' => true]);
-			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
-			$this->tpl->add_listener('head', $strHeadInjection, true);
+		}
+		
+		private function genInput($arrVarData){
+			
+			$text_decoration = [
+				'none'			=> 'none',
+				'underline'		=> 'underline',
+				'overline'		=> 'overline',
+				'line-through'	=> 'line-through',
+				'blink'			=> 'blink'
+			];
+			$border_style = [
+				'none'		=> 'none',
+				'hidden'	=> 'hidden',
+				'dotted'	=> 'dotted',
+				'dashed'	=> 'dashed',
+				'solid'		=> 'solid',
+				'double'	=> 'double',
+				'groove'	=> 'groove',
+				'ridge'		=> 'ridge',
+				'inset'		=> 'inset',
+				'outset'	=> 'outset'
+			];
+			// $width_options = [
+			// 	'px'	=> 'px',
+			// 	'%'		=> '%',
+			// ];
+			// $logo_positions = [
+			// 	'center'=>	$this->user->lang('logo_position_center'),
+			// 	'right'	=>	$this->user->lang('portalplugin_right'),
+			// 	'left'	=>	$this->user->lang('portalplugin_left'),
+			// 	'none'	=>	$this->user->lang('info_opt_ml_0'),
+			// ];
+			
+			
+			
+			$arrUsedVariables = []; // TODO: Copy the manage_styles.php -> get_used_variables() :: to disable / hide some input fields
+			
+			
+			$strHTML = '';
+			$strPrefixedName = 'scp_style_var-'.$arrVarData['name'];
+			
+			switch($arrVarData['type']){
+				case 'color':
+						$strHTML .= (new htext($strPrefixedName, ['value' => $arrVarData['value'], 'size' => 14]))->output();
+						$strHTML .= '<script>$(\'#'.$strPrefixedName.'\').spectrum('.json_encode([
+							'disabled'				=> (!in_array($arrVarData['name'], $arrUsedVariables))? true : false,
+							'showInput'				=> true,
+							// 'showInitial'			=> true,
+							'showAlpha'				=> true,
+							'preferredFormat'		=> 'hex3',
+							'showPalette'			=> true,
+							'hideAfterPaletteSelect'=> true,
+							'palette'				=> [
+								['black', 'white', 'blanchedalmond'],
+								['rgb(255, 128, 0);', 'hsv 100 70 50', 'lightyellow']
+							],
+							'showSelectionPalette'	=> true,
+							// 'selectionPalette'		=> ["red", "green", "blue"],
+							// 'localStorageKey'		=> 'plugins.style_creator.color_palette',
+						]).');</script>';
+					break;
+				
+				case 'decoration':
+						$strHTML .= (new hdropdown($strPrefixedName, ['options' => $text_decoration, 'value' => $arrVarData['value'], 'disabled' => ((!in_array($arrVarData['name'], $arrUsedVariables))? true : false)]))->output();
+					break;
+				
+				// case 'font-family':
+				// 		$strHTML = (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 30, 'disabled' => ((!in_array($name, $arrUsedVariables))? true : false)]))->output();
+				// 	break;
+				
+				case 'size':
+						$strHTML .= (new htext($name, ['value' => sanitize($this->style[$name]), 'size' => 3, 'after_txt' => 'px', 'disabled' => ((!in_array($name, $arrUsedVariables))? true : false)]))->output();
+					break;
+				
+				default:
+					$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 30, 'disabled' => ((!in_array($name, $arrUsedVariables))? true : false)]))->output();
+			}
+			
+			return $strHTML;
 		}
 		
 		public function toggle($return=false){

@@ -122,11 +122,25 @@
 		return preOpen.apply(this, args);
 	}
 	
-	
+	/*	NOTE: Sidebar/Dialog (Proof of Concept)
+			das ".menu li" bekommt ein div, in diesem label ==> dies bekommt das eigentluchte li styling
+			dann nurnoch das css klassenmanagment so gestalten das mit simplen class.nameChange gearbeitet wird
+		
+			Das umwandeln zur Sidebar
+				var element = $('fieldset.scp_controls[data-category="body"]').detach();
+				element.appendTo('.menu li[data-*] > div');
+				
+			Das umwandeln zum Dialog
+				var element = $('fieldset.scp_controls[data-category="body"]').detach();
+				element.appendTo('.body');
+				
+			Das draggen des Dialogs
+				$( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
+	*/
 	
 </script>
 
-<!-- IF SCP_LOAD -->
+
 <div id="scp_overlay">
 	<div class="scp_dialog">
 		<div class="scp_dialog_head">
@@ -136,62 +150,26 @@
 		</div>
 		<div class="scp_dialog_body">
 			<ul class="scp_dialog_menu">
-				<li>(PLACEHOLDER)</li>
-				<li>(PLACEHOLDER)</li>
-				<li>(PLACEHOLDER)</li>
-				<li>(PLACEHOLDER)</li>
+				<!-- BEGIN scp_style_settings -->
+					<li data-category="{scp_style_settings.NAME}">{scp_style_settings.LABEL}</li>
+				<!-- END scp_style_settings -->
 			</ul>
 			<div class="scp_dialog_content">
-				<fieldset class="scp_controls">
-					<dl>
-						<dt><label>(PLACEHOLDER)</label><span>(PLACEHOLDER)</span></dt>
-						<dd><input type="text" /></dd>
-					</dl>
-					<dl>
-						<dt><label>(PLACEHOLDER)</label></dt>
-						<dd>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-						</dd>
-					</dl>
-					<dl>
-						<dt><label>(PLACEHOLDER)</label></dt>
-						<dd class="scp_controls_radio_vert">
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-							<label><input type="radio" /> (PLACEHOLDER)</label>
-						</dd>
-					</dl>
-					<dl>
-						<dt><label>(PLACEHOLDER)</label>(PLACEHOLDER)</dt>
-						<dd>
-							<input value="#555" class="input colorpicker" size="14" readonly type="text">
-							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
-						</dd>
-					</dl>
-					<dl>
-						<dt><label>(PLACEHOLDER)</label></dt>
-						<dd>
-							<input value="#555" class="input colorpicker" size="14" readonly type="text">
-							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
-						</dd>
-					</dl>
-					<dl>
-						<dt><label>(PLACEHOLDER)</label><span>(PLACEHOLDER)</span>(PLACEHOLDER) (PLACEHOLDER) (PLACEHOLDER)</dt>
-						<dd>
-							<input value="#555" class="input colorpicker" size="14" readonly type="text">
-							<div class="sp-replacer sp-light"><div class="sp-preview"><div class="sp-preview-inner" style="background-color: rgb(51, 51, 51);"></div></div><div class="sp-dd">▼</div></div>
-						</dd>
-					</dl>
-				</fieldset>
+				<!-- BEGIN scp_style_settings -->
+					<fieldset class="scp_controls" data-category="{scp_style_settings.NAME}">
+						<!-- BEGIN controls -->
+							<dl data-control="{scp_style_settings.controls.NAME}">
+								<dt><label>{scp_style_settings.controls.LABEL}</label><span>{scp_style_settings.controls.HELP}</span>@{scp_style_settings.controls.NAME}</dt>
+								<dd>{scp_style_settings.controls.INPUT}</dd>
+							</dl>
+						<!-- END controls -->
+					</fieldset>
+				<!-- END scp_style_settings -->
 			</div>
 		</div>
 	</div>
 </div>
 
-<!-- ENDIF -->
 
 
 
