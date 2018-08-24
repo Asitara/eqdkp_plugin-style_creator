@@ -102,6 +102,17 @@
 					});
 				}
 			},
+			
+			// HTML Functions		-- TODO: add: fieldset.detach() & save, init via localStorage -> plugins.style_creator.showSidebar
+			'toggleStyleSettings': function(button, init=false){
+				$(button).parent().parent().animate({
+					opacity: 0.25,
+					left: '-=100%',
+				}, 600, function() {
+					$(button).parent().parent().toggleClass('scp_dialog').toggleClass('scp_sidebar').removeAttr('style');
+				});
+				// $(button).parent().parent().toggleClass('scp_dialog').toggleClass('scp_sidebar');
+			},
 		};
 		SCP.init();
 		
@@ -142,7 +153,38 @@
 
 
 <div id="scp_overlay">
-	<div class="scp_dialog">
+	<div class="scp_style_settings scp_dialog">
+		<div class="scp_style_settings_head">
+			<h1 class="scp_style_settings_title">{L_style_creator}</h1>
+			<button class="scp_button scp_button-close" type="button"></button>
+			
+			<button class="scp_button scp_button-toggle" type="button" onclick="SCP.toggleStyleSettings(this)"></button>
+			<button class="scp_button scp_button-config" type="button">(PLACEHOLDER)</button>
+		</div>
+		<div class="scp_style_settings_body">
+			<ul class="scp_style_settings_menu">
+				<!-- BEGIN scp_style_settings -->
+					<li class="scp_style_settings_menu_item" data-category="{scp_style_settings.NAME}"><label>(PLACEHOLDER){scp_style_settings.LABEL}</label></li>
+				<!-- END scp_style_settings -->
+			</ul>
+			<div class="scp_style_settings_content">
+				<!-- BEGIN scp_style_settings -->
+					<fieldset class="scp_controls" data-category="{scp_style_settings.NAME}">
+						<!-- BEGIN controls -->
+							<dl data-control="{scp_style_settings.controls.NAME}">
+								<dt><label>(PLACEHOLDER){scp_style_settings.controls.LABEL}</label><p>(PLACEHOLDER){scp_style_settings.controls.HELP}</p><span>@{scp_style_settings.controls.NAME}</span></dt>
+								<dd>{scp_style_settings.controls.INPUT}</dd>
+							</dl>
+						<!-- END controls -->
+					</fieldset>
+				<!-- END scp_style_settings -->
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	<div class="scp_dialog" style="display:none;">
 		<div class="scp_dialog_head">
 			<h1 class="scp_dialog_title">{L_style_creator}</h1>
 			<button class="scp_dialog_close" type="button"></button>
