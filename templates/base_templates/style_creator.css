@@ -57,304 +57,323 @@
 
 // Overlay & Base ELements
 #scp_overlay {
-    position: fixed;
-    z-index: 999999;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+	position: fixed;
+	z-index: 999999;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 
-    text-align: left;
+	text-align: left;
 }
 .scp_style_settings {
-    &.scp_dialog {
-        position: absolute;
-        top: 70px;
-        left: 200px;
+	&.scp_dialog {
+		position: absolute;
+		top: 70px;
+		left: 200px;
 
-        width: 800px;
-        height: 400px;
+		width: 800px;
+		height: 400px;
 
-        background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
-        border: 1px solid #a3a3a3;
-        box-shadow: 0 0 5px 1px #000, 0 0 10em 3em rgba(0,0,0,.5) inset;
-        //box-shadow: 0 0 5px 1px #000, 0 0 3em 4em rgba(0, 0, 0, 0.15) inset;
-    }
-    &.scp_sidebar {
-        width: 400px;
+		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
+		border: 1px solid #a3a3a3;
+		box-shadow: 0 0 5px 1px #000, 0 0 10em 3em rgba(0,0,0,.5) inset;
+		//box-shadow: 0 0 5px 1px #000, 0 0 3em 4em rgba(0, 0, 0, 0.15) inset;
+	}
+	&.scp_sidebar {
+		width: 400px;
 
-        background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
-        border: 1px solid #a3a3a3;
-        box-shadow: 0 0 5px 1px #000, 0 0 10em 3em rgba(0,0,0,.5) inset;
-        //box-shadow: 0 0 5px 1px #000, 0 0 3em 4em rgba(0, 0, 0, 0.15) inset;
-    }
+		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
+		border: 1px solid #a3a3a3;
+		box-shadow: 0 0 5px 1px #000, 0 0 10em 3em rgba(0,0,0,.5) inset;
+		//box-shadow: 0 0 5px 1px #000, 0 0 3em 4em rgba(0, 0, 0, 0.15) inset;
+	}
 }
 
 // Settings Head
 .scp_style_settings_head {
-    display: flex;
+	display: flex;
 
-    height: 30px;
-    margin: 25px 5px 0 5px;
-    padding: 0 10px;
+	height: 30px;
+	margin: 25px 5px 0 5px;
+	padding: 0 10px;
 
-    justify-content: space-between;
+	justify-content: space-between;
 
-    .scp_sidebar & {
-        flex-direction: row-reverse;
-    }
+	.scp_sidebar & {
+		flex-direction: row-reverse;
+	}
 }
 .scp_style_settings_head .scp_button {
-    &:not(.scp_button-close) {
-        margin: 5px;
-    }
+	&:not(.scp_button-close) {
+		margin: 5px;
+	}
 }
 .scp_style_settings_title {
-    position: absolute;
-    top: -15px;
-    left: -10px;
+	position: absolute;
+	top: -15px;
+	left: -10px;
 
-    padding: 3px 10px 7px 10px;
+	padding: 3px 10px 7px 10px;
 
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 24px;
-    font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 24px;
+	font-weight: bold;
 
-    background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/title_bar.png') no-repeat center / 100% 100%;
-    border: none;
-    color: #d12b2b;
-    text-shadow: -1px -1px rgba(0,0,0,.3), 1px 1px #000;
+	background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/title_bar.png') no-repeat center / 100% 100%;
+	border: none;
+	color: #d12b2b;
+	text-shadow: -1px -1px rgba(0,0,0,.3), 1px 1px #000;
 
-    &:after {
-        position: absolute;
-        top: 0;
-        right: 0;
+	&:after {
+		position: absolute;
+		top: 0;
+		right: 0;
 
-        width: 35px;
-        height: 100%;
+		width: 35px;
+		height: 100%;
 
-        content: '';
-        transform: translateX(100%);
+		content: '';
+		transform: translateX(100%);
 
-        background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/title_bar_edge.png') no-repeat center / 100% 100%;
-    }
+		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/title_bar_edge.png') no-repeat center / 100% 100%;
+	}
 }
 
 // Settings Body
 .scp_style_settings_body {
-    display: flex;
+	display: flex;
 
-    height: calc(~'100% - 65px');	// Get & Calculate Height - depend of .scp_style_settings_head
-    margin: 5px;
+	height: calc(~'100% - 65px');	// Get & Calculate Height - depend of .scp_style_settings_head
+	margin: 5px;
 
-    flex-wrap: wrap;
+	flex-wrap: wrap;
 }
 .scp_style_settings_menu {
-    overflow-y: auto;
+	overflow-y: auto;
 
-    height: 100%;
-    margin-right: 5px;
-    padding-right: 3px;
+	height: 100%;
+	margin-right: 5px;
+	padding-right: 3px;
 
-    list-style: none;
+	list-style: none;
 
-    flex: 0 0 170px;
+	flex: 0 0 170px;
 }
 .scp_style_settings_menu_item > label {
-    display: block;
+	display: block;
 
-    margin-bottom: 5px;
-    padding: 5px 10px;
+	margin-bottom: 5px;
+	padding: 5px 10px;
 
-    background: rgba(200, 90, 30, .5);
-    border: 1px solid rgba(200, 90, 30, .5);
+	background: rgba(200, 90, 30, .5);
+	border: 1px solid rgba(200, 90, 30, .5);
 }
 .scp_style_settings_content {
-    overflow-y: auto;
+	overflow-y: auto;
 
-    box-sizing: border-box;
-    height: 100%;
+	box-sizing: border-box;
+	height: 100%;
 
-    background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_soft.png') 50% 50% repeat;
-    border: 1px solid #acacac;
+	background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_soft.png') 50% 50% repeat;
+	border: 1px solid #acacac;
 
-    flex: 1 1 auto;
+	flex: 1 1 auto;
 
-    .scp_sidebar & {
-        display: none;
-    }
+	.scp_sidebar & {
+		display: none;
+	}
 }
 
 // Controls
 .scp_controls dl {
-    // TODO: use here opacity: .5; if not used in current style, disable on :hover or if cariable is changed
-    position: relative;
+	// TODO: use here opacity: .5; if not used in current style, disable on :hover or if cariable is changed
+	position: relative;
 
-    padding: 5px 5px 0;
+	padding: 5px 5px 0;
 
-    border-bottom: 1px solid rgba(255,255,255,.1);
+	border-bottom: 1px solid rgba(255,255,255,.1);
 }
 .scp_controls dt {
-    font-size: 10px;
+	font-size: 10px;
 }
 .scp_controls dt label {
-    display: block;
+	display: block;
 
-    padding: 2px 0 4px;
+	padding: 2px 0 4px;
 
-    font-size: 12px;
-    font-weight: bold;
+	font-size: 12px;
+	font-weight: bold;
 }
 .scp_controls dt p {
-    padding-left: 7px;
+	padding-left: 7px;
 
-    color: #999;
+	color: #999;
 }
 .scp_controls dt span {
-    position: absolute;
-    top: 3px;
-    right: 10px;
+	position: absolute;
+	top: 3px;
+	right: 10px;
 
-    color: #777;
+	color: #777;
 }
 .scp_controls dd {
-    padding: 10px 0 5px 15px;
+	padding: 10px 0 5px 15px;
 }
 
 .scp_controls input[type='text'] {
-    margin: 0;
-    padding: 3px 3px;
+	margin: 0;
+	padding: 3px 3px;
 
-    font-size: 12px;
-    line-height: 1;
+	font-size: 12px;
+	line-height: 1;
 
-    background: hsla(100, 0, 0, 0);
-    border-radius: 0;
+	background: hsla(100, 0, 0, 0);
+	border-radius: 0;
 }
 
 .scp_controls .colorpicker {
-    display: inline-block;
+	display: inline-block;
 
-    margin-right: -1px;
+	margin-right: -1px;
 }
 .scp_controls .sp-replacer {
-    box-sizing: border-box;
-    height: 20px;
-    padding: 0;
+	box-sizing: border-box;
+	height: 20px;
+	padding: 0;
 
-    border-radius: 0;
+	border-radius: 0;
 }
 .scp_controls .sp-replacer .sp-dd {
-    padding: 3px 5px 0 0;
+	padding: 3px 5px 0 0;
 
-    font-size: 10px;
-    line-height: 1;
+	font-size: 10px;
+	line-height: 1;
 }
 
 // Buttons
 .scp_button {
-    margin: 0;
-    padding: 3px 7px;
+	margin: 0;
+	padding: 3px 7px;
 
-    font-size: 13px;
+	font-size: 13px;
 
-    background: rgba(200, 90, 30, .5) url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_medium.png') 50% 50% repeat;
-    border: 1px solid rgba(200, 90, 30, .5);
-    border-radius: 0;
+	background: rgba(200, 90, 30, .5) url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_medium.png') 50% 50% repeat;
+	border: 1px solid rgba(200, 90, 30, .5);
+	border-radius: 0;
 
-    &:hover {
-        background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
-        border: 1px outset #ccc;
-    }
+	&:hover {
+		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
+		border: 1px outset #ccc;
+	}
 }
 .scp_button-close:extend(.scp_button) {
-    position: absolute;
-    top: 2px;
-    right: 2px;
+	position: absolute;
+	top: 2px;
+	right: 2px;
 
-    width: 20px;
-    height: 20px;
+	width: 20px;
+	height: 20px;
 
-    background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/button_close.png') no-repeat center / 100% 100%;
-    border: none;
+	background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/button_close.png') no-repeat center / 100% 100%;
+	border: none;
 
-    &:hover {
-        background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/button_close_hover.png') no-repeat center / 100% 100%;
-    }
+	&:hover {
+		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/button_close_hover.png') no-repeat center / 100% 100%;
+	}
 }
 .scp_button-toggle:extend(.scp_button) {
-    padding: 2px 7px;
+	padding: 2px 7px;
 
-    .scp_dialog &:after {
-        display: block;
+	.scp_dialog &:after {
+		display: block;
 
-        content: '\25c4';// ◄
-    }
-    .scp_sidebar &:after {
-        display: block;
+		content: '\25c4';// ◄
+	}
+	.scp_sidebar &:after {
+		display: block;
 
-        content: '\25ba';// ►
-    }
+		content: '\25ba';// ►
+	}
 }
 .scp_button-config:extend(.scp_button) {
-    // margin-left: auto;
+	// margin-left: auto;
 }
 
-
-
-
-.scp_msg_box_overlay {
-    pointer-events: none;
-
-    background: rgba(0,0,0,.5);
-}
 
 
 .scp_msg_box {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+	z-index: 100;
+}
+.scp_msg_box_overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 
-    max-width: 40%;
+	display: none;
 
-    transform: translate(-50%,-50%);
+	pointer-events: none;
 
-    background: linear-gradient(to right, rgba(200, 90, 30, .5),rgba(200, 90, 30, .5)), url('@{eqdkpRootPath}eqdkp/plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
-    border: 1px solid rgba(200, 90, 30, .5);
+	background: transparent;
+	.scp_msg_box-active & {
+		display: block;
+
+		background: rgba(0, 0, 0, .8);
+	}
+}
+.scp_msg_box_content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	display: none;
+
+	transform: translate(-50%,-50%);
+
+	background: linear-gradient(to right, rgba(200, 90, 30, .5),rgba(200, 90, 30, .5)), url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
+	border: 1px solid rgba(200, 90, 30, .5);
+
+	.scp_msg_box-active & {
+		display: block;
+
+		pointer-events: all;
+	}
 }
 .scp_msg_box_head {
-    padding: 5px 50px 5px 10px;
+	padding: 5px 50px 5px 10px;
 
-    background: rgba(0,0,0,.5);
-    border-bottom: 1px solid rgba(200, 90, 30, .5);
+	background: rgba(0,0,0,.5);
+	border-bottom: 1px solid rgba(200, 90, 30, .5);
 }
 .scp_msg_box_title {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 .scp_msg_box_body {
-    display: flex;
+	display: flex;
 
-    padding: 10px 25px;
+	padding: 10px 25px;
 
-    box-shadow: 0 0 10px 2px rgba(0, 0, 0, .5) inset;
+	box-shadow: 0 0 10px 2px rgba(0, 0, 0, .5) inset;
 
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-	
-	.scp_button & {
+	flex-wrap: wrap;
+	justify-content: space-around;
+
+	.scp_button {
 		padding: 7px 12px;
 	}
 }
 .scp_msg_box_text {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 
-    flex: 1 0 100%;
+	flex: 1 0 100%;
 }
 
 

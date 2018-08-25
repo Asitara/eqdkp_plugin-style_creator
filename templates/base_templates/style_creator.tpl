@@ -14,10 +14,9 @@
 			_watch_timer: null,						// private: ID of setTimeout when watch_mode
 			
 			init: function(){
-				
-				
-				
 				SCP.toggleStyleSettings(true);
+				
+				SCP.disableCache();
 				
 				// Add executable style element to <head>
 				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
@@ -32,7 +31,7 @@
 					// poll: 2000,				// disabled, we use own watch_mode
 					// relativeUrls: true,		// disabled, seems not working - workaround in preProcessor
 					// rootpath: '',			// disabled, seems not working - workaround in preProcessor
-					// errorReporting: self.error_handler,
+					// errorReporting: self.errorHandler,
 					plugins: [SCP.less_plugin],
 					globalVars: SCP.global_vars,
 				};
@@ -41,37 +40,37 @@
 				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js');
 				
 			},
-			'toggle': function(){
+			toggle: function(){
 				$.post(mmocms_controller_path+mmocms_sid+'&scp_toggle', {'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
 					function(response){
 						response = JSON.parse(response);
 						if(!response.error) location.reload();
 				});
 			},
-			'msg_box': function(){
-			
+			message: function(){
+				$('#scp_overlay > .scp_msg_box').toggleClass('scp_msg_box-active');
 			},
-			'error_handler': function(a,b,c){
+			errorHandler: function(a,b,c){
 				console.log(a,b,c);alert('LESS Error: siehe Konsole');
 			},
 			
-			'refresh': function(new_vars=false){
+			refresh: function(new_vars=false){
 				less_vars = (typeof new_vars == 'object')? {...SCP.global_vars, ...new_vars} : SCP.global_vars;
 				// TODO: Dump changed vars & re-use
 				SCP.gen_less_src();
 				
 				return less.modifyVars(less_vars);
 			},
-			'watch': function(){
+			watch: function(){
 				SCP._watch_mode = true;
 				SCP.refresh();
 			},
-			'unwatch': function(){
+			unwatch: function(){
 				clearTimeout(SCP._watch_timer);
 				SCP._watch_mode = false;
 			},
 			
-			'gen_less_src': function(){
+			gen_less_src: function(){
 				scp_less_src = '';
 				$(SCP.load_order).each(function(index){
 					if(SCP.load_order[index].load) scp_less_src += ((SCP.load_order[index].code == 'additional_less')? SCP.additional_less : SCP.load_order[index].code) +'\n';
@@ -80,8 +79,20 @@
 				// TODO: Make this smoother if page reload, by spliting into _less_src & _less_dist
 				return scp_less_src;
 			},
-			
-			'less_plugin': {
+			disableCache: function(){
+				var preOpen = XMLHttpRequest.prototype.open;
+				XMLHttpRequest.prototype.open = function(method, url) {
+					var args = Array.prototype.slice.call(arguments, 0);
+					if (url.match(/\.css$/)) {
+						console.log(url);
+						
+						url += '?timestamp='+Date.now();
+						args[1]=url;
+					}
+					return preOpen.apply(this, args);
+				}
+			}
+			less_plugin: {
 				install: function(less, pluginManager){
 					pluginManager.addPreProcessor({
 						process: function (src, extra){
@@ -107,7 +118,7 @@
 				}
 			},
 			
-			'toggleStyleSettings': function(init=false){
+			toggleStyleSettings: function(init=false){
 				let storageKey		= SCP.storageKey+'show_sidebar';
 				let show_sidebar	= localStorage.getItem(storageKey);
 				let base_element	= $('#scp_overlay > .scp_style_settings');
@@ -133,35 +144,15 @@
 		};
 		SCP.init();
 		
-		// Inject ToggleSCP Button
+		// NOTE: Maybe we should here use the template overwrite method of EQdkp
 		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-paint-brush" /> (PLACEHOLDER)</button>');
 		
 	});
 	
-	
-	// TODO: Include this in SCP.init() with pre-defined files @ url.match()
-	var preOpen = XMLHttpRequest.prototype.open;
-	XMLHttpRequest.prototype.open = function(method, url) {
-		var args = Array.prototype.slice.call(arguments, 0);
-		if (url.match(/\.css$/)) {
-			url += '?timestamp='+Date.now();
-			args[1]=url;
-		}
-		return preOpen.apply(this, args);
-	}
-	
 	/*	NOTE: Sidebar/Dialog (Proof of Concept)
 			das ".menu li" bekommt ein div, in diesem label ==> dies bekommt das eigentluchte li styling
 			dann nurnoch das css klassenmanagment so gestalten das mit simplen class.nameChange gearbeitet wird
-		
-			Das umwandeln zur Sidebar
-				var element = $('fieldset.scp_controls[data-category="body"]').detach();
-				element.appendTo('.menu li[data-*] > div');
-				
-			Das umwandeln zum Dialog
-				var element = $('fieldset.scp_controls[data-category="body"]').detach();
-				element.appendTo('.body');
-				
+			
 			Das draggen des Dialogs
 				$( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
 	*/
@@ -200,14 +191,17 @@
 	</div>
 	
 	<div class="scp_msg_box">
-		<div class="scp_msg_box_head">
-			<h3 class="scp_msg_box_title">(PLACEHOLDER)</h3>
-			<button class="scp_button scp_button-close" type="button"></button>
-		</div>
-		<div class="scp_msg_box_body">
-			<p class="scp_msg_box_text">(PLACEHOLDER)</p>
-			<button class="scp_button scp_button-confirm" type="button">(PLACEHOLDER)</button>
-			<button class="scp_button scp_button-abort" type="button">(PLACEHOLDER)</button>
+		<div class="scp_msg_box_overlay"></div>
+		<div class="scp_msg_box_content">
+			<div class="scp_msg_box_head">
+				<h3 class="scp_msg_box_title">(PLACEHOLDER)</h3>
+				<button class="scp_button scp_button-close" type="button"></button>
+			</div>
+			<div class="scp_msg_box_body">
+				<p class="scp_msg_box_text">(PLACEHOLDER)</p>
+				<button class="scp_button scp_button-confirm" type="button">(PLACEHOLDER)</button>
+				<button class="scp_button scp_button-abort" type="button">(PLACEHOLDER)</button>
+			</div>
 		</div>
 	</div>
 </div>
