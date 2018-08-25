@@ -237,14 +237,14 @@ if(!class_exists('style_creator_plugin')){
 		public function init(){
 			
 			$style_code = $this->user->style['template_path'];
-			$style_path = $this->root_path.'templates/'.$style_code.'/';
+			$style_path = 'templates/'.$style_code.'/';
 			$arrLoadOrder = [
-				['label'=>'core.css', 'load'=>true, 'code'=>'@import (less) "'.$this->root_path.'libraries/jquery/core/core.css";'],
-				['label'=>'jquery.less', 'load'=>true, 'code'=>'@import (optional) "'.$style_path.'jquery.less";'],
-				['label'=>'eqdkpplus.css', 'load'=>true, 'code'=>'@import (less) "'.$this->root_path.'templates/eqdkpplus.css";'],
-				['label'=>$style_code.'.css', 'load'=>true, 'code'=>'@import (less) "'.$style_path.$style_code.'.css";'],
-				['label'=>'additional_less (Style Settings)', 'load'=>true, 'code'=>'additional_less'],
-				['label'=>'custom.css', 'load'=>true, 'code'=>'@import (less, optional) "'.$style_path.'custom.css";'],
+				['label'=>'core.css', 'load'=>true, 'type'=>'file', 'file'=>'libraries/jquery/core/core.css', 'options'=>'less'],
+				['label'=>'jquery.less', 'load'=>true, 'type'=>'file', 'file'=>$style_path.'jquery.less', 'options'=>'less, optional'],
+				['label'=>'eqdkpplus.css', 'load'=>true, 'type'=>'file', 'file'=>'templates/eqdkpplus.css', 'options'=>'less'],
+				['label'=>$style_code.'.css', 'load'=>true, 'type'=>'file', 'file'=>$style_path.$style_code.'.css', 'options'=>'less'],
+				['label'=>$this->user->lang('stylesettings_additional_less').' (Style Settings)', 'load'=>true, 'type'=>'var', 'file'=>'additional_less', 'options'=>'less, optional'],
+				['label'=>'custom.css', 'load'=>true, 'type'=>'file', 'file'=>$style_path.'custom.css', 'options'=>'less, optional'],
 			];
 			
 			$this->tpl->assign_vars([
@@ -322,8 +322,7 @@ if(!class_exists('style_creator_plugin')){
 			
 			
 			
-			$arrUsedVariables = []; // TODO: Copy the manage_styles.php -> get_used_variables() :: to disable / hide some input fields
-			
+			// TODO: Copy the manage_styles.php -> get_used_variables() :: to hide some input fields with opacity .5 except they are changed
 			
 			$strHTML = '';
 			$strPrefixedName = 'scp_style_var-'.$arrVarData['name'];
@@ -332,7 +331,6 @@ if(!class_exists('style_creator_plugin')){
 				case 'color':
 						$strHTML .= (new htext($strPrefixedName, ['value' => $arrVarData['value'], 'size' => 14]))->output();
 						$strHTML .= '<script>$(\'#'.$strPrefixedName.'\').spectrum('.json_encode([
-							'disabled'				=> (!in_array($arrVarData['name'], $arrUsedVariables))? true : false,
 							'showInput'				=> true,
 							// 'showInitial'			=> true,
 							'showAlpha'				=> true,
@@ -350,7 +348,7 @@ if(!class_exists('style_creator_plugin')){
 					break;
 				
 				case 'decoration':
-						$strHTML .= (new hdropdown($strPrefixedName, ['options' => $text_decoration, 'value' => $arrVarData['value'], 'disabled' => ((!in_array($arrVarData['name'], $arrUsedVariables))? true : false)]))->output();
+						$strHTML .= (new hdropdown($strPrefixedName, ['options' => $text_decoration, 'value' => $arrVarData['value']]))->output();
 					break;
 				
 				// case 'font-family':
@@ -358,11 +356,11 @@ if(!class_exists('style_creator_plugin')){
 				// 	break;
 				
 				case 'size':
-						$strHTML .= (new htext($name, ['value' => sanitize($this->style[$name]), 'size' => 3, 'after_txt' => 'px', 'disabled' => ((!in_array($name, $arrUsedVariables))? true : false)]))->output();
+						$strHTML .= (new htext($name, ['value' => sanitize($this->style[$name]), 'size' => 3, 'after_txt' => 'px']))->output();
 					break;
 				
 				default:
-					$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 30, 'disabled' => ((!in_array($name, $arrUsedVariables))? true : false)]))->output();
+					$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 30]))->output();
 			}
 			
 			return $strHTML;

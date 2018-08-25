@@ -20,7 +20,7 @@
 				
 				// Add executable style element to <head>
 				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
-				SCP.gen_less_src();
+				SCP.genLessSrc();
 				
 				// Init less options
 				less = {
@@ -57,7 +57,7 @@
 			refresh: function(new_vars=false){
 				less_vars = (typeof new_vars == 'object')? {...SCP.global_vars, ...new_vars} : SCP.global_vars;
 				// TODO: Dump changed vars & re-use
-				SCP.gen_less_src();
+				SCP.genLessSrc();
 				
 				return less.modifyVars(less_vars);
 			},
@@ -70,28 +70,36 @@
 				SCP._watch_mode = false;
 			},
 			
-			gen_less_src: function(){
-				scp_less_src = '';
-				$(SCP.load_order).each(function(index){
-					if(SCP.load_order[index].load) scp_less_src += ((SCP.load_order[index].code == 'additional_less')? SCP.additional_less : SCP.load_order[index].code) +'\n';
+			genLessSrc: function(){
+				let less_code = '';
+				
+				let load_order = this.load_order;
+				$(load_order).each(function(index){
+					if(!load_order[index].load) return;
+					if(load_order[index].type == 'var'){
+						less_code += (SCP[load_order[index].file])? SCP[load_order[index].file]+'\n' : '';
+					}else{
+						less_code += '@import ('+load_order[index].options+') "@{'+'eqdkpRootPath'+'}'+load_order[index].file+'";'+'\n';
+					}
 				});
-				$('#scp_less_dist').attr('type','text/less').text(scp_less_src);
-				// TODO: Make this smoother if page reload, by spliting into _less_src & _less_dist
-				return scp_less_src;
+				
+				$('#scp_less_dist').attr('type','text/less').text(less_code);
+				return less_code;
 			},
 			disableCache: function(){
-				var preOpen = XMLHttpRequest.prototype.open;
-				XMLHttpRequest.prototype.open = function(method, url) {
-					var args = Array.prototype.slice.call(arguments, 0);
-					if (url.match(/\.css$/)) {
-						console.log(url);
-						
-						url += '?timestamp='+Date.now();
-						args[1]=url;
-					}
-					return preOpen.apply(this, args);
-				}
-			}
+				let load_order = this.load_order;
+				
+				let xhr_open = XMLHttpRequest.prototype.open;
+				XMLHttpRequest.prototype.open = function(){
+					let args = Array.prototype.slice.call(arguments, 0);
+					
+					$(load_order).each(function(index){
+						if(load_order[index].load && load_order[index].type == 'file' && args[1].match(load_order[index].file)) args[1] += '?timestamp='+Date.now();
+					});
+					
+					return xhr_open.apply(this, args);
+				};
+			},
 			less_plugin: {
 				install: function(less, pluginManager){
 					pluginManager.addPreProcessor({
@@ -99,7 +107,6 @@
 							SCP.parse_time = new Date();
 							
 							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly (try: follow commented code)
-							// src = SCP.gen_less_src();
 							
 							return src;
 						}
