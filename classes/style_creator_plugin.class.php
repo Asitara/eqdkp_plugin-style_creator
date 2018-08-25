@@ -260,6 +260,7 @@ if(!class_exists('style_creator_plugin')){
 			// if($this->config->get('scp_enabled', 'style_creator')) $this->load();
 			$this->loadPage();
 			$this->tpl->css_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.css');
+			// $this->tpl->js_file($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.js');
 			$this->tpl->add_listener('body_bottom', file_get_contents($this->root_path.'plugins/style_creator/templates/base_templates/style_creator.tpl'), true);
 		}
 		

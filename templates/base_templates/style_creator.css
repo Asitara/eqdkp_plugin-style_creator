@@ -33,7 +33,21 @@
 
 
 
-// TODO: Die genutzen Background Bilder bearbeiten das sie bündig mit dem Rand sind (schatten entfernen), dann das layout der dialog_box neu ordnen, anshcließend Bilder einfügen und css box-shadow nutzen
+// IDEA: Für die blinkelicht Hinweis ANzeige welche Variable was ändert auf der aktuellen Seite,.. müssten wir über JS komplex arbeiten
+//			Oder wie lassen es halt einfach normal durchn parser laufen (hat nur dann eben dauerhaft delay, etwas unschön)
+//			Oder wir nutzen son workaround hier:
+// 					.mix(){ animation: scp_pointer 2s infinite alternate; }
+// 					@keyframes scp_pointer {
+// 						0% {background-color: #4CA0E0; color: #4CA0E0;}
+// 						25% {background-color: #FFB802; color: #FFB802;}
+// 						50% {background-color: #D9442F; color: #D9442F;}
+// 						75% {background-color: #3BC492; color: #3BC492;}
+// 						100% {background-color: #e5e5e5; color: #e5e5e5;}
+// 					}
+//					@mix: animation: scp_pointer 2s infinite alternate;
+// 					@color: ~'#000;@{mix}';
+// 					body { color: @color; }
+
 
 // StyleCreator Namespace
 // #scp() !important;
@@ -66,7 +80,7 @@
         box-shadow: 0 0 5px 1px #000, 0 0 10em 3em rgba(0,0,0,.5) inset;
         //box-shadow: 0 0 5px 1px #000, 0 0 3em 4em rgba(0, 0, 0, 0.15) inset;
     }
-	&.scp_sidebar {
+    &.scp_sidebar {
         width: 400px;
 
         background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
@@ -85,10 +99,10 @@
     padding: 0 10px;
 
     justify-content: space-between;
-	
-	.scp_sidebar & {
-		flex-direction: row-reverse;
-	}
+
+    .scp_sidebar & {
+        flex-direction: row-reverse;
+    }
 }
 .scp_style_settings_head .scp_button {
     &:not(.scp_button-close) {
@@ -101,6 +115,11 @@
     left: -10px;
 
     padding: 3px 10px 7px 10px;
+
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 24px;
@@ -165,10 +184,10 @@
     border: 1px solid #acacac;
 
     flex: 1 1 auto;
-	
-	.scp_sidebar & {
-		display:none;
-	}
+
+    .scp_sidebar & {
+        display: none;
+    }
 }
 
 // Controls
@@ -289,154 +308,56 @@
 
 
 
+.scp_msg_box_overlay {
+    pointer-events: none;
+
+    background: rgba(0,0,0,.5);
+}
+
+
+.scp_msg_box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    max-width: 40%;
+
+    transform: translate(-50%,-50%);
+
+    background: linear-gradient(to right, rgba(200, 90, 30, .5),rgba(200, 90, 30, .5)), url('@{eqdkpRootPath}eqdkp/plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
+    border: 1px solid rgba(200, 90, 30, .5);
+}
+.scp_msg_box_head {
+    padding: 5px 50px 5px 10px;
+
+    background: rgba(0,0,0,.5);
+    border-bottom: 1px solid rgba(200, 90, 30, .5);
+}
+.scp_msg_box_title {
+    margin: 0;
+    padding: 0;
+}
+.scp_msg_box_body {
+    display: flex;
+
+    padding: 10px 25px;
+
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, .5) inset;
+
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+	
+	.scp_button & {
+		padding: 7px 12px;
+	}
+}
+.scp_msg_box_text {
+    margin-bottom: 15px;
+
+    flex: 1 0 100%;
+}
+
+
+
 
 // }	// TEMP for debugging
-
-
-
-/*
-#scp_overlay {
-	
-	display: none !important;
-	
-	
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999999;
-  text-align: left;
-}
-.scp_dialog {
-  position: absolute;
-  top: 70px;
-  left: 200px;
-  height: 400px;
-  width: 800px;
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_strong.png") no-repeat center / 100% 100%;
-}
-.scp_dialog_title {
-  position: absolute;
-  top: -10px;
-  left: -1px;
-  padding: 3px 10px 7px 10px;
-  border: none;
-  font-size: 24px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: bold;
-  text-shadow: 1px 1px #000;
-  color: #da4141;
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar.png") no-repeat center / 100% 100%;
-}
-.scp_dialog_title:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translateX(100%);
-  height: 100%;
-  width: 35px;
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/title_bar_edge.png") no-repeat center / 100% 100%;
-}
-.scp_dialog_close {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/button_close.png") no-repeat center / 100% 100%;
-  border: none !important;
-  height: 20px;
-  width: 20px;
-}
-.scp_button_close:hover {
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/button_close_hover.png") no-repeat center / 100% 100%;
-}
-.scp_dialog_head {
-  margin: 35px 15px 0 15px;
-  height: 30px;
-  background: #041a;
-}
-.scp_dialog_body {
-	height: calc(~'100% - 75px');	// calc 100% minus the dialog_head( margin, height) in px
-	margin: 0 15px 10px 15px;
-  display: flex;
-  flex-wrap: wrap;
-}
-.scp_dialog_menu {
-  list-style: none;
-  overflow-y: auto;
-  flex: 0 0 170px;
-  height: 100%;
-}
-.scp_dialog_menu > li {
-  padding: 10px;
-  margin: 5px 3px 5px 0px;
-  background: rgba(200, 90, 30, 0.5);
-  border: 1px solid rgba(200, 90, 30, 0.5);
-}
-.scp_dialog_content {
-  height: 100%;
-  padding: 8px 12px;
-  box-sizing: border-box;
-  flex: 1 1 auto;
-  overflow-y: auto;
-  background: url("../../../../plugins/style_creator/templates/base_templates/images/bg_soft.png") no-repeat center / 100% 100%;
-}
-
-
-// layout
-.scp_controls dl {
-	margin: 2px 2px;
-	border-bottom: 1px solid rgba(255,255,255,.1);
-}
-.scp_controls dt {
-	font-size: 10px;
-}
-.scp_controls dt label {
-	display: block;
-	padding: 2px 0 4px;
-	font-size: 12px;
-	font-weight: bold;
-}
-.scp_controls dt span {
-	float: right;
-}
-.scp_controls dd {
-	padding: 5px 0 10px 10px;
-}
-
-// input text
-.scp_controls input[type="text"] {
-	margin: 0;
-	padding: 3px 3px;
-	font-size: 12px;
-	border-radius: 0;
-	line-height: 1;
-	background: hsla(100, 0, 0, 0);
-}
-
-// colorpicker
-.scp_controls .colorpicker {
-	display: inline-block !important;
-	margin-right: -1px !important;
-}
-.scp_controls .sp-replacer {
-	height: 20px;
-	padding: 0;
-	border-radius: 0;
-	box-sizing: border-box;
-}
-.scp_controls .sp-replacer .sp-dd {
-	 font-size: 10px;
-	 line-height: 1;
-	 padding: 3px 5px 0 0;
-}
-
-
-// radio
-.scp_controls .scp_controls_radio_vert label {
-	display: block;
-}
-
-
-*/

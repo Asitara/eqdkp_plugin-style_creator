@@ -1,16 +1,29 @@
 
 <script>
 	
-	// TODO: refactor: sort object elements --- exclude SCP to seperate js file
-	
 	var SCP, less;
 	$(function(){
 		SCP = {
-			'load_order': {SCP_LOAD_ORDER},
-			'additional_less': {SCP_ADDITIONAL_LESS},
-			'global_vars': {SCP_GLOBAL_VARS},
-			'init': function(){
+			poll: 2000,								// public: delay for auto-refresh when watch_mode
+			storageKey: 'plugins.style_creator.',	// public: localStorage key prefix
+			load_order: {SCP_LOAD_ORDER},			// public: load order of less files
+			additional_less: {SCP_ADDITIONAL_LESS},
+			global_vars: {SCP_GLOBAL_VARS},
+			
+			_watch_mode: false,						// private: state of watch_mode
+			_watch_timer: null,						// private: ID of setTimeout when watch_mode
+			
+			init: function(){
 				
+				
+				
+				SCP.toggleStyleSettings(true);
+				
+				// Add executable style element to <head>
+				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
+				SCP.gen_less_src();
+				
+				// Init less options
 				less = {
 					env: 'development',
 					// useFileCache: false,		// disabled, inline-css ignore this option
@@ -24,11 +37,7 @@
 					globalVars: SCP.global_vars,
 				};
 				
-				// Add executable style element to <head>
-				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
-				SCP.gen_less_src();
-				
-				// Load less.js file with ajax (prevent: immediate rendering)
+				// Load less with ajax (prevent: immediately execution)
 				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js');
 				
 			},
@@ -53,18 +62,13 @@
 				
 				return less.modifyVars(less_vars);
 			},
-			'poll': 2000,
-			'watch_timer': null,
-			'watch_mode': false,
 			'watch': function(){
-				SCP.watch_mode = true;
-				start_MS = new Date();
-				
+				SCP._watch_mode = true;
 				SCP.refresh();
 			},
 			'unwatch': function(){
-				clearTimeout(SCP.watch_timer);
-				SCP.watch_mode = false;
+				clearTimeout(SCP._watch_timer);
+				SCP._watch_mode = false;
 			},
 			
 			'gen_less_src': function(){
@@ -95,7 +99,7 @@
 							parse_time_tolerance = parse_time / .66;
 							console.log('Less has finished after '+parse_time+'ms.');
 							
-							if(SCP.watch_mode) SCP.watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time_tolerance)? SCP.poll : parse_time_tolerance));
+							if(SCP._watch_mode) SCP._watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time_tolerance)? SCP.poll : parse_time_tolerance));
 							
 							return src;
 						}
@@ -103,21 +107,34 @@
 				}
 			},
 			
-			// HTML Functions		-- TODO: add: fieldset.detach() & save, init via localStorage -> plugins.style_creator.showSidebar
-			'toggleStyleSettings': function(button, init=false){
-				$(button).parent().parent().animate({
-					opacity: 0.25,
-					left: '-=100%',
-				}, 600, function() {
-					$(button).parent().parent().toggleClass('scp_dialog').toggleClass('scp_sidebar').removeAttr('style');
-				});
-				// $(button).parent().parent().toggleClass('scp_dialog').toggleClass('scp_sidebar');
+			'toggleStyleSettings': function(init=false){
+				let storageKey		= SCP.storageKey+'show_sidebar';
+				let show_sidebar	= localStorage.getItem(storageKey);
+				let base_element	= $('#scp_overlay > .scp_style_settings');
+				
+				if(init) show_sidebar = (show_sidebar === null || show_sidebar == 'false')? false : true;
+				else show_sidebar = base_element.hasClass('scp_dialog');
+				
+				if(  show_sidebar  ){
+					base_element.switchClass('scp_dialog','scp_sidebar', (init)? 0 : 400);
+					base_element.find('.scp_controls[data-category]').each(function(index, element){
+						let menu_item = base_element.find('.scp_style_settings_menu > [data-category="'+$(element).data('category')+'"]');
+						if(menu_item.length) $(element).detach().appendTo(menu_item);
+					});
+					localStorage.setItem(storageKey, true);
+				}else{
+					base_element.switchClass('scp_sidebar','scp_dialog');
+					base_element.find('.scp_controls[data-category]').each(function(index, element){
+						$(element).detach().appendTo(base_element.find('.scp_style_settings_content'));
+					});
+					localStorage.setItem(storageKey, false);
+				}
 			},
 		};
 		SCP.init();
 		
 		// Inject ToggleSCP Button
-		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-plus" /> Style Creator (PLACEHOLDER)</button>');
+		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-paint-brush" /> (PLACEHOLDER)</button>');
 		
 	});
 	
@@ -158,7 +175,7 @@
 			<h1 class="scp_style_settings_title">{L_style_creator}</h1>
 			<button class="scp_button scp_button-close" type="button"></button>
 			
-			<button class="scp_button scp_button-toggle" type="button" onclick="SCP.toggleStyleSettings(this)"></button>
+			<button class="scp_button scp_button-toggle" type="button" onclick="SCP.toggleStyleSettings();"></button>
 			<button class="scp_button scp_button-config" type="button">(PLACEHOLDER)</button>
 		</div>
 		<div class="scp_style_settings_body">
@@ -182,32 +199,15 @@
 		</div>
 	</div>
 	
-	
-	
-	<div class="scp_dialog" style="display:none;">
-		<div class="scp_dialog_head">
-			<h1 class="scp_dialog_title">{L_style_creator}</h1>
-			<button class="scp_dialog_close" type="button"></button>
-			(PLACEHOLDER)
+	<div class="scp_msg_box">
+		<div class="scp_msg_box_head">
+			<h3 class="scp_msg_box_title">(PLACEHOLDER)</h3>
+			<button class="scp_button scp_button-close" type="button"></button>
 		</div>
-		<div class="scp_dialog_body">
-			<ul class="scp_dialog_menu">
-				<!-- BEGIN scp_style_settings -->
-					<li data-category="{scp_style_settings.NAME}">{scp_style_settings.LABEL}</li>
-				<!-- END scp_style_settings -->
-			</ul>
-			<div class="scp_dialog_content">
-				<!-- BEGIN scp_style_settings -->
-					<fieldset class="scp_controls" data-category="{scp_style_settings.NAME}">
-						<!-- BEGIN controls -->
-							<dl data-control="{scp_style_settings.controls.NAME}">
-								<dt><label>{scp_style_settings.controls.LABEL}</label><span>{scp_style_settings.controls.HELP}</span>@{scp_style_settings.controls.NAME}</dt>
-								<dd>{scp_style_settings.controls.INPUT}</dd>
-							</dl>
-						<!-- END controls -->
-					</fieldset>
-				<!-- END scp_style_settings -->
-			</div>
+		<div class="scp_msg_box_body">
+			<p class="scp_msg_box_text">(PLACEHOLDER)</p>
+			<button class="scp_button scp_button-confirm" type="button">(PLACEHOLDER)</button>
+			<button class="scp_button scp_button-abort" type="button">(PLACEHOLDER)</button>
 		</div>
 	</div>
 </div>
