@@ -26,7 +26,7 @@
 				SCP.disableCache();
 				
 				// Add executable style element to <head>
-				$('html > head').append('<style id="scp_less_dist" type="text/less"></style>');
+				$('html > head').append('<style id="scp_less_dist"></style>');
 				SCP.genLessSrc();
 				
 				// Init less options
@@ -51,6 +51,7 @@
 				});
 				
 				// TODO: wipe_data in localStorage => current_vars & additional_less -- prevent old vars in new projects
+				this.wipeData();
 			},
 			
 			message: function(){
@@ -130,6 +131,10 @@
 					
 					this._cache_disabled = true;
 				}
+			},
+			
+			wipeData: function(){
+				localStorage.removeItem(this._storage_key+'current_vars');
 			},
 			
 			_less_plugin: {
