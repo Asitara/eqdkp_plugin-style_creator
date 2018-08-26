@@ -6,11 +6,12 @@
 		SCP = {
 			poll: 2000,								// public: delay for auto-refresh when watch_mode
 			disableStyle: true,						// public: disable original style
-			storageKey: 'plugins.style_creator.',	// public: localStorage key prefix
-			load_order: {SCP_LOAD_ORDER},			// public: load order of less files
-			additional_less: {SCP_ADDITIONAL_LESS},
-			global_vars: {SCP_GLOBAL_VARS},
 			
+			load_order: {SCP_LOAD_ORDER},								// public: load order of less files
+			include_less: { additional_less: {SCP_ADDITIONAL_LESS}, },	// public: include addiotnal less (see: load_order)
+			
+			_storageKey: 'plugins.style_creator.',	// private: localStorage key prefix
+			_global_vars: {SCP_GLOBAL_VARS},		// private: global vars of style
 			_watch_mode: false,						// private: state of watch_mode
 			_watch_timer: null,						// private: ID of setTimeout when watch_mode
 			_cache_disabled: false,					// private: state of xhr caching
@@ -28,9 +29,9 @@
 				// Init less options
 				less = {
 					env: 'development',			// NOTE: maybe we can set it to production, we have own watch mode
-					// errorReporting: self.errorHandler,
-					plugins: [SCP.less_plugin],
-					globalVars: SCP.global_vars,
+					errorReporting: self.errorHandler,
+					plugins: [SCP._less_plugin],
+					globalVars: SCP._global_vars,
 				};
 				
 				// Load less with ajax (prevent: immediately execution)
@@ -44,21 +45,28 @@
 						response = JSON.parse(response);
 						if(!response.error) location.reload();
 				});
+				
+				// TODO: wipe_data in localStorage => current_vars & additional_less -- prevent old vars in new projects
 			},
 			
 			message: function(){
 				$('#scp_overlay > .scp_msg_box').toggleClass('scp_msg_box-active');
 			},
 			
-			errorHandler: function(a,b,c){
-				console.log(a,b,c);alert('LESS Error: siehe Konsole');
+			errorHandler: function(){
+				console.log(arguments); alert('Bibo hat ein LESS Fehler gefunden: siehe Konsole (PLACEHOLDER)');
 			},
 			
 			refresh: function(new_vars=false){
-				less_vars = (typeof new_vars == 'object')? {...SCP.global_vars, ...new_vars} : SCP.global_vars;
-				// TODO: Dump changed vars & re-use
+				new_vars = (typeof new_vars == 'object')? new_vars : { };
+				let current_vars = JSON.parse(localStorage.getItem(this.storageKey+'current_vars'));
+				current_vars = (typeof current_vars == 'object')? current_vars : { };
+				
+				let less_vars = {...this._global_vars, ...current_vars, ...new_vars};
+				
 				SCP.genLessSrc();
 				
+				localStorage.setItem(this.storageKey+'current_vars', JSON.stringify(less_vars));
 				return less.modifyVars(less_vars);
 			},
 			
@@ -79,7 +87,7 @@
 				$(load_order).each(function(index){
 					if(!load_order[index].load) return;
 					if(load_order[index].type == 'var'){
-						less_code += (SCP[load_order[index].file])? SCP[load_order[index].file]+'\n' : '';
+						less_code += (SCP.include_less[load_order[index].file])? SCP.include_less[load_order[index].file]+'\n' : '';
 					}else{
 						less_code += '@import ('+load_order[index].options+') "@{'+'eqdkpRootPath'+'}'+load_order[index].file+'";'+'\n';
 					}
@@ -96,7 +104,6 @@
 					var parser = document.createElement('a');
 					
 					for(let i = 0; i < document.styleSheets.length; i++){
-						console.log(document.styleSheets.item(i).href);
 						if(this._compareWithLoadOrder(document.styleSheets.item(i).href)) document.styleSheets.item(i).disabled = disable;
 					}
 					
@@ -120,11 +127,11 @@
 				}
 			},
 			
-			less_plugin: {
+			_less_plugin: {
 				install: function(less, pluginManager){
 					pluginManager.addPreProcessor({
 						process: function (src, extra){
-							SCP.parse_time = new Date();
+							SCP._parse_time = new Date();
 							
 							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly
 							
@@ -133,14 +140,17 @@
 					});
 					pluginManager.addPostProcessor({
 						process: function (src, extra){
-							parse_time = new Date() - SCP.parse_time;
-							parse_time_tolerance = parse_time / .66;
-							console.log('Less has finished after '+parse_time+'ms. (PLACEHOLDER)');
-							
-							if(SCP._watch_mode) SCP._watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time_tolerance)? SCP.poll : parse_time_tolerance));
+							let parse_time = new Date() - SCP._parse_time;
+							SCP._setAverageDelay(parse_time);
 							
 							SCP.disableStyle();
 							
+							if(SCP._watch_mode){
+								parse_time = SCP._getAverageDelay() / .66;
+								SCP._watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time)? SCP.poll : parse_time));
+							}
+							
+							console.log('Less has finished after '+parse_time+'ms. (PLACEHOLDER)');
 							return src;
 						}
 					});
@@ -187,10 +197,10 @@
 			},
 			
 			// NOTE: Can be used later, that the user know whats happen...
-			//			we need for that a array of last delays, prevent overflow with a cap of the last 10-20 delays
-			//			theoretical can we rewrite 'arr_times' with 'this' as 'SCP', so we dont need an input via _avarageDelay([1,2,3,4])
-			_avarageDelay: arr_times => arr_times.reduce((total, current_value) => total += current_value, 0) / arr_times.length,
-			
+			_parse_time: 1000,		// private: parse time of current less process
+			_last_delays: [],		// private: last delays of less parsing
+			_setAverageDelay: delay => (SCP._last_delays.length >= 10)? SCP._last_delays.shift().push(delay) : SCP._last_delays.push(delay),
+			_getAverageDelay: () => SCP._last_delays.reduce((total, current_value) => total += current_value, 0) / SCP._last_delays.length,
 		};
 		SCP.init();
 		
