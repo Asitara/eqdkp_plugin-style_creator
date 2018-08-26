@@ -5,6 +5,7 @@
 	$(function(){
 		SCP = {
 			poll: 2000,								// public: delay for auto-refresh when watch_mode
+			disableStyle: true,						// public: disable original style
 			storageKey: 'plugins.style_creator.',	// public: localStorage key prefix
 			load_order: {SCP_LOAD_ORDER},			// public: load order of less files
 			additional_less: {SCP_ADDITIONAL_LESS},
@@ -12,6 +13,8 @@
 			
 			_watch_mode: false,						// private: state of watch_mode
 			_watch_timer: null,						// private: ID of setTimeout when watch_mode
+			_cache_disabled: false,					// private: state of xhr caching
+			_style_disabled: false,					// private: state of original style
 			
 			init: function(){
 				SCP.toggleStyleSettings(true);
@@ -24,13 +27,7 @@
 				
 				// Init less options
 				less = {
-					env: 'development',
-					// useFileCache: false,		// disabled, inline-css ignore this option
-					// async: true,				// disabled, don't know if it re-sort load_order
-					// fileAsync: true,			// disabled, don't know if it re-sort load_order
-					// poll: 2000,				// disabled, we use own watch_mode
-					// relativeUrls: true,		// disabled, seems not working - workaround in preProcessor
-					// rootpath: '',			// disabled, seems not working - workaround in preProcessor
+					env: 'development',			// NOTE: maybe we can set it to production, we have own watch mode
 					// errorReporting: self.errorHandler,
 					plugins: [SCP.less_plugin],
 					globalVars: SCP.global_vars,
@@ -40,6 +37,7 @@
 				$.getScript( mmocms_root_path+'plugins/style_creator/less/less.js');
 				
 			},
+			
 			toggle: function(){
 				$.post(mmocms_controller_path+mmocms_sid+'&scp_toggle', {'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
 					function(response){
@@ -47,9 +45,11 @@
 						if(!response.error) location.reload();
 				});
 			},
+			
 			message: function(){
 				$('#scp_overlay > .scp_msg_box').toggleClass('scp_msg_box-active');
 			},
+			
 			errorHandler: function(a,b,c){
 				console.log(a,b,c);alert('LESS Error: siehe Konsole');
 			},
@@ -61,10 +61,12 @@
 				
 				return less.modifyVars(less_vars);
 			},
+			
 			watch: function(){
 				SCP._watch_mode = true;
 				SCP.refresh();
 			},
+			
 			unwatch: function(){
 				clearTimeout(SCP._watch_timer);
 				SCP._watch_mode = false;
@@ -86,27 +88,45 @@
 				$('#scp_less_dist').attr('type','text/less').text(less_code);
 				return less_code;
 			},
-			disableCache: function(){
-				let load_order = this.load_order;
-				
-				let xhr_open = XMLHttpRequest.prototype.open;
-				XMLHttpRequest.prototype.open = function(){
-					let args = Array.prototype.slice.call(arguments, 0);
+			
+			// NOTE: added a force argument for the user control, but it's currently not in use
+			disableStyle: function(disable=true, force=false){
+				if(this.disableStyle && disable != this._style_disabled || force){
+					let load_order = this.load_order;
+					var parser = document.createElement('a');
 					
-					$(load_order).each(function(index){
-						if(load_order[index].load && load_order[index].type == 'file' && args[1].match(load_order[index].file)) args[1] += '?timestamp='+Date.now();
-					});
+					for(let i = 0; i < document.styleSheets.length; i++){
+						console.log(document.styleSheets.item(i).href);
+						if(this._compareWithLoadOrder(document.styleSheets.item(i).href)) document.styleSheets.item(i).disabled = disable;
+					}
 					
-					return xhr_open.apply(this, args);
-				};
+					this._style_disabled = disable;
+				}
 			},
+			
+			disableCache: function(){
+				if(!this._cache_disabled){
+					let self = this;
+					let xhr_open = XMLHttpRequest.prototype.open;
+					
+					XMLHttpRequest.prototype.open = function(){
+						let args = Array.prototype.slice.call(arguments, 0);
+						if(self._compareWithLoadOrder(args[1])) args[1] += '?timestamp='+Date.now();
+						
+						return xhr_open.apply(this, args);
+					};
+					
+					this._cache_disabled = true;
+				}
+			},
+			
 			less_plugin: {
 				install: function(less, pluginManager){
 					pluginManager.addPreProcessor({
 						process: function (src, extra){
 							SCP.parse_time = new Date();
 							
-							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly (try: follow commented code)
+							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly
 							
 							return src;
 						}
@@ -115,9 +135,11 @@
 						process: function (src, extra){
 							parse_time = new Date() - SCP.parse_time;
 							parse_time_tolerance = parse_time / .66;
-							console.log('Less has finished after '+parse_time+'ms.');
+							console.log('Less has finished after '+parse_time+'ms. (PLACEHOLDER)');
 							
 							if(SCP._watch_mode) SCP._watch_timer = window.setTimeout('SCP.refresh()', ((SCP.poll > parse_time_tolerance)? SCP.poll : parse_time_tolerance));
+							
+							SCP.disableStyle();
 							
 							return src;
 						}
@@ -148,6 +170,27 @@
 					localStorage.setItem(storageKey, false);
 				}
 			},
+			
+			_compareWithLoadOrder: function(url){
+				let url_parser = document.createElement('a'); // { protocol => "http:", host => "example.com:3000", hostname => "example.com", port => "3000", pathname => "/pathname/", search => "?search=test", hash => "#hash" }
+						
+				url_parser.href = url;
+				let input_file = url_parser.pathname.substr(url_parser.pathname.lastIndexOf('/')+1);
+				for(let i = 0; i < this.load_order.length; i++){
+					if(this.load_order[i].load && this.load_order[i].type == 'file'){
+						url_parser.href = this.load_order[i].file;
+						let file = url_parser.pathname.substr(url_parser.pathname.lastIndexOf('/')+1);
+						if(input_file.match(file)) return true;
+					}
+				}
+				return false;
+			},
+			
+			// NOTE: Can be used later, that the user know whats happen...
+			//			we need for that a array of last delays, prevent overflow with a cap of the last 10-20 delays
+			//			theoretical can we rewrite 'arr_times' with 'this' as 'SCP', so we dont need an input via _avarageDelay([1,2,3,4])
+			_avarageDelay: arr_times => arr_times.reduce((total, current_value) => total += current_value, 0) / arr_times.length,
+			
 		};
 		SCP.init();
 		
@@ -156,10 +199,7 @@
 		
 	});
 	
-	/*	NOTE: Sidebar/Dialog (Proof of Concept)
-			das ".menu li" bekommt ein div, in diesem label ==> dies bekommt das eigentluchte li styling
-			dann nurnoch das css klassenmanagment so gestalten das mit simplen class.nameChange gearbeitet wird
-			
+	/*	TODO:
 			Das draggen des Dialogs
 				$( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
 	*/
