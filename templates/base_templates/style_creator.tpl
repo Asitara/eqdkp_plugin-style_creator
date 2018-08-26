@@ -16,6 +16,9 @@
 			_watch_timer: null,						// private: ID of setTimeout when watch_mode
 			_cache_disabled: false,					// private: state of xhr caching
 			_style_disabled: false,					// private: state of original style
+			_parse_time: 1000,						// private: parse time of current less process
+			_last_delays: [],						// private: last delays of less parsing
+			
 			
 			init: function(){
 				SCP.toggleStyleSettings(true);
@@ -29,7 +32,8 @@
 				// Init less options
 				less = {
 					env: 'development',			// NOTE: maybe we can set it to production, we have own watch mode
-					errorReporting: self.errorHandler,
+					useFileCache: false,
+					// errorReporting: self.errorHandler,
 					plugins: [SCP._less_plugin],
 					globalVars: SCP._global_vars,
 				};
@@ -118,9 +122,9 @@
 					
 					XMLHttpRequest.prototype.open = function(){
 						let args = Array.prototype.slice.call(arguments, 0);
-						console.log('XHR get: ', args[1]);
+						
 						if(self._compareWithLoadOrder(args[1])) args[1] += '?timestamp='+Date.now();
-						console.log('XHR load: ', args[1]);
+						
 						return xhr_open.apply(this, args);
 					};
 					
@@ -197,10 +201,11 @@
 				return false;
 			},
 			
-			// NOTE: Can be used later, that the user know whats happen...
-			_parse_time: 1000,		// private: parse time of current less process
-			_last_delays: [],		// private: last delays of less parsing
-			_setAverageDelay: delay => (SCP._last_delays.length >= 10)? SCP._last_delays.shift().push(delay) : SCP._last_delays.push(delay),
+			_setAverageDelay: function(delay){
+				if(this._last_delays.length >= 10) this._last_delays.shift();
+				this._last_delays.push(delay);
+			},
+			
 			_getAverageDelay: () => SCP._last_delays.reduce((total, current_value) => total += current_value, 0) / SCP._last_delays.length,
 		};
 		SCP.init();
