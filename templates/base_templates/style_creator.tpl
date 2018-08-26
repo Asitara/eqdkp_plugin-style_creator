@@ -5,12 +5,12 @@
 	$(function(){
 		SCP = {
 			poll: 2000,								// public: delay for auto-refresh when watch_mode
-			disableStyle: true,						// public: disable original style
+			disable_style: true,						// public: disable original style
 			
 			load_order: {SCP_LOAD_ORDER},								// public: load order of less files
 			include_less: { additional_less: {SCP_ADDITIONAL_LESS}, },	// public: include addiotnal less (see: load_order)
 			
-			_storageKey: 'plugins.style_creator.',	// private: localStorage key prefix
+			_storage_key: 'plugins.style_creator.',	// private: localStorage key prefix
 			_global_vars: {SCP_GLOBAL_VARS},		// private: global vars of style
 			_watch_mode: false,						// private: state of watch_mode
 			_watch_timer: null,						// private: ID of setTimeout when watch_mode
@@ -59,14 +59,14 @@
 			
 			refresh: function(new_vars=false){
 				new_vars = (typeof new_vars == 'object')? new_vars : { };
-				let current_vars = JSON.parse(localStorage.getItem(this.storageKey+'current_vars'));
+				let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
 				current_vars = (typeof current_vars == 'object')? current_vars : { };
 				
 				let less_vars = {...this._global_vars, ...current_vars, ...new_vars};
 				
 				SCP.genLessSrc();
 				
-				localStorage.setItem(this.storageKey+'current_vars', JSON.stringify(less_vars));
+				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify(less_vars));
 				return less.modifyVars(less_vars);
 			},
 			
@@ -99,7 +99,7 @@
 			
 			// NOTE: added a force argument for the user control, but it's currently not in use
 			disableStyle: function(disable=true, force=false){
-				if(this.disableStyle && disable != this._style_disabled || force){
+				if(this.disable_style && disable != this._style_disabled || force){
 					let load_order = this.load_order;
 					var parser = document.createElement('a');
 					
@@ -118,8 +118,9 @@
 					
 					XMLHttpRequest.prototype.open = function(){
 						let args = Array.prototype.slice.call(arguments, 0);
+						console.log('XHR get: ', args[1]);
 						if(self._compareWithLoadOrder(args[1])) args[1] += '?timestamp='+Date.now();
-						
+						console.log('XHR load: ', args[1]);
 						return xhr_open.apply(this, args);
 					};
 					
@@ -158,8 +159,8 @@
 			},
 			
 			toggleStyleSettings: function(init=false){
-				let storageKey		= SCP.storageKey+'show_sidebar';
-				let show_sidebar	= localStorage.getItem(storageKey);
+				let storage_key		= SCP._storage_key+'show_sidebar';
+				let show_sidebar	= localStorage.getItem(storage_key);
 				let base_element	= $('#scp_overlay > .scp_style_settings');
 				
 				if(init) show_sidebar = (show_sidebar === null || show_sidebar == 'false')? false : true;
@@ -171,13 +172,13 @@
 						let menu_item = base_element.find('.scp_style_settings_menu > [data-category="'+$(element).data('category')+'"]');
 						if(menu_item.length) $(element).detach().appendTo(menu_item);
 					});
-					localStorage.setItem(storageKey, true);
+					localStorage.setItem(storage_key, true);
 				}else{
 					base_element.switchClass('scp_sidebar','scp_dialog');
 					base_element.find('.scp_controls[data-category]').each(function(index, element){
 						$(element).detach().appendTo(base_element.find('.scp_style_settings_content'));
 					});
-					localStorage.setItem(storageKey, false);
+					localStorage.setItem(storage_key, false);
 				}
 			},
 			
