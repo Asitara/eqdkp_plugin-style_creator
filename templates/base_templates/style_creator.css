@@ -191,18 +191,29 @@
 }
 
 // Controls
-.scp_controls dl {
+.scp_style_var {
 	// TODO: use here opacity: .5; if not used in current style, disable on :hover or if cariable is changed
 	position: relative;
 
 	padding: 5px 5px 0;
 
 	border-bottom: 1px solid rgba(255,255,255,.1);
+
+	&[data-used='false'] {
+		opacity: .5;
+	}
+	&[data-changed] {
+		opacity: 1;
+	}
+	&:hover {
+		background: rgba(155,155,155,.05);
+		opacity: 1;
+	}
 }
-.scp_controls dt {
+.scp_style_var dt {
 	font-size: 10px;
 }
-.scp_controls dt label {
+.scp_style_var dt label {
 	display: block;
 
 	padding: 2px 0 4px;
@@ -210,23 +221,23 @@
 	font-size: 12px;
 	font-weight: bold;
 }
-.scp_controls dt p {
+.scp_style_var dt p {
 	padding-left: 7px;
 
 	color: #999;
 }
-.scp_controls dt span {
+.scp_style_var dt span {
 	position: absolute;
 	top: 3px;
 	right: 10px;
 
 	color: #777;
 }
-.scp_controls dd {
+.scp_style_var dd {
 	padding: 10px 0 5px 15px;
 }
 
-.scp_controls input[type='text'] {
+.scp_style_var input[type='text'] {
 	margin: 0;
 	padding: 3px 3px;
 
@@ -237,19 +248,19 @@
 	border-radius: 0;
 }
 
-.scp_controls .colorpicker {
+.scp_style_var .colorpicker {
 	display: inline-block;
 
 	margin-right: -1px;
 }
-.scp_controls .sp-replacer {
+.scp_style_var .sp-replacer {
 	box-sizing: border-box;
 	height: 20px;
 	padding: 0;
 
 	border-radius: 0;
 }
-.scp_controls .sp-replacer .sp-dd {
+.scp_style_var .sp-replacer .sp-dd {
 	padding: 3px 5px 0 0;
 
 	font-size: 10px;

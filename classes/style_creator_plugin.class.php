@@ -196,12 +196,14 @@ if(!class_exists('style_creator_plugin')){
 					if($strVarName == 'body_font_size'){
 						$arrLessVars[$strCategory][$this->styles->convertNameToLessVar($strVarName)] = [
 							'value'	=> (isset($style[$strVarName]) && strlen($style[$strVarName]))? $style[$strVarName].'px' : '13px',
+							'label'	=> $this->user->lang('stylesettings_'.$strVarName),
 							'type'	=> $strVarType,
 						];
 						continue;
 					}
 					$arrLessVars[$strCategory][$this->styles->convertNameToLessVar($strVarName)] = [
 						'value'	=> (isset($style[$strVarName]) && strlen($style[$strVarName]))? $this->replaceSomePathVariables($style[$strVarName]) : ((stripos($strVarName, 'color'))? '#000' : '""'),
+						'label'	=> $this->user->lang('stylesettings_'.$strVarName),
 						'type'	=> $strVarType,
 					];
 				}
@@ -210,7 +212,7 @@ if(!class_exists('style_creator_plugin')){
 			// Add Game variables
 			foreach($this->game->get_primary_classes() as $intClassID => $strClassName){
 				$arrLessVars['game']['eqdkpClasscolor'.$intClassID] = [
-					'value'	=> ($this->game->get_class_color($class_id) != '') ? $this->game->get_class_color($class_id) : "''",
+					'value'	=> ($this->game->get_class_color($intClassID) != '') ? $this->game->get_class_color($intClassID) : "''",
 					'type'	=> 'color',
 					'label'	=> '"'.$strClassName.'"',
 				];
@@ -234,11 +236,10 @@ if(!class_exists('style_creator_plugin')){
 			return $arrLessVars;
 		}
 		
-		public function init(){
-			
+		public function getLoadOrder(){
 			$style_code = $this->user->style['template_path'];
 			$style_path = 'templates/'.$style_code.'/';
-			$arrLoadOrder = [
+			return [
 				['label'=>'core.css', 'load'=>true, 'type'=>'file', 'file'=>'libraries/jquery/core/core.css', 'options'=>'less'],
 				['label'=>'jquery.less', 'load'=>true, 'type'=>'file', 'file'=>$style_path.'jquery.less', 'options'=>'less, optional'],
 				['label'=>'eqdkpplus.css', 'load'=>true, 'type'=>'file', 'file'=>'templates/eqdkpplus.css', 'options'=>'less'],
@@ -246,12 +247,15 @@ if(!class_exists('style_creator_plugin')){
 				['label'=>$this->user->lang('stylesettings_additional_less').' (Style Settings)', 'load'=>true, 'type'=>'var', 'file'=>'additional_less', 'options'=>'less, optional'],
 				['label'=>'custom.css', 'load'=>true, 'type'=>'file', 'file'=>$style_path.'custom.css', 'options'=>'less, optional'],
 			];
+		}
+		
+		public function init(){
 			
 			$this->tpl->assign_vars([
 				'SCP_LOAD'				=> false,
 				'SCP_CSRF_TOKEN'		=> $this->user->csrfPostToken(),
 				'SCP_GLOBAL_VARS'		=> json_encode($this->getLessVars(true)),
-				'SCP_LOAD_ORDER'		=> json_encode($arrLoadOrder),
+				'SCP_LOAD_ORDER'		=> json_encode($this->getLoadOrder()),
 				'SCP_ADDITIONAL_LESS'	=> "'".str_replace("'", "\'", strip_tags($this->user->style['additional_less']))."'"
 			]);
 			
@@ -265,23 +269,25 @@ if(!class_exists('style_creator_plugin')){
 		}
 		
 		public function loadPage(){
+			$arrUsedarrUsedVariables = $this->getUsedVariables();
 			
 			foreach($this->getLessVars() as $strCategory => $arrCategoryVars){
 				if($strCategory == 'environment') continue;
 				
 				$this->tpl->assign_block_vars('scp_style_settings', [
 					'NAME'	=> $strCategory,
-					'LABEL'	=> $this->user->lang('scp_style_settings_cat_'.$strCategory),
+					'LABEL'	=> $this->user->lang('stylesettings_heading_'.$strCategory),
 				]);
 				
 				foreach($arrCategoryVars as $strVarName => $arrVarData){
 					if(!in_array($strVarName, $this->allowed_variables)) continue;
-						
-					$this->tpl->assign_block_vars('scp_style_settings.controls', [
+					
+					$this->tpl->assign_block_vars('scp_style_settings.style_vars', [
 						'NAME'	=> $strVarName,
 						'LABEL'	=> $arrVarData['label'],
 						'HELP'	=> $arrVarData['label'],
 						'INPUT'	=> $this->genInput(array_merge($arrVarData, ['name' => $strVarName])),
+						'USED'	=> (in_array($strVarName, $arrUsedarrUsedVariables))? 'true' : 'false',
 					]);
 				}
 			}
@@ -356,7 +362,7 @@ if(!class_exists('style_creator_plugin')){
 				// 	break;
 				
 				case 'size':
-						$strHTML .= (new htext($name, ['value' => sanitize($this->style[$name]), 'size' => 3, 'after_txt' => 'px']))->output();
+						$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 3]))->output();
 					break;
 				
 				default:
@@ -410,5 +416,28 @@ if(!class_exists('style_creator_plugin')){
 			
 			return ($template_background_file != '')? $template_background_file : $root_path.'games/'.$this->config->get('default_game').'/template_background.jpg';
 		}
+		
+		private function getUsedVariables(){
+			$arrFiles = $arrUsedVariables = [];
+			$arrVariablesToLook = array_keys($this->getLessVars(true));
+			
+			foreach($this->getLoadOrder() as $arrLoad){
+				if($arrLoad['type'] == 'file') $arrFiles[] = $this->tpl->resolve_css_file($this->root_path.$arrLoad['file']);
+			}
+			
+			foreach($arrFiles as $strFilename){
+				if($strFilename && is_file($strFilename)){
+					$strContent = file_get_contents($strFilename);
+					
+					foreach($arrVariablesToLook as $strVariable){
+						if(strpos($strContent, '@'.$strVariable) !== false) $arrUsedVariables[] = $strVariable;
+					}
+				}
+			}
+			
+			return array_unique($arrUsedVariables);
+		}
+		
+		
 	}
 }

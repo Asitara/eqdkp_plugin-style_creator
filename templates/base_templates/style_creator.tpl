@@ -177,14 +177,14 @@
 				
 				if(  show_sidebar  ){
 					base_element.switchClass('scp_dialog','scp_sidebar', (init)? 0 : 400);
-					base_element.find('.scp_controls[data-category]').each(function(index, element){
+					base_element.find('.scp_style_vars[data-category]').each(function(index, element){
 						let menu_item = base_element.find('.scp_style_settings_menu > [data-category="'+$(element).data('category')+'"]');
 						if(menu_item.length) $(element).detach().appendTo(menu_item);
 					});
 					localStorage.setItem(storage_key, true);
 				}else{
 					base_element.switchClass('scp_sidebar','scp_dialog');
-					base_element.find('.scp_controls[data-category]').each(function(index, element){
+					base_element.find('.scp_style_vars[data-category]').each(function(index, element){
 						$(element).detach().appendTo(base_element.find('.scp_style_settings_content'));
 					});
 					localStorage.setItem(storage_key, false);
@@ -235,23 +235,23 @@
 			<button class="scp_button scp_button-close" type="button"></button>
 			
 			<button class="scp_button scp_button-toggle" type="button" onclick="SCP.toggleStyleSettings();"></button>
-			<button class="scp_button scp_button-config" type="button">(PLACEHOLDER)</button>
+			<button class="scp_button scp_button-config" type="button">(PLACEHOLDER) Config</button>
 		</div>
 		<div class="scp_style_settings_body">
 			<ul class="scp_style_settings_menu">
 				<!-- BEGIN scp_style_settings -->
-					<li class="scp_style_settings_menu_item" data-category="{scp_style_settings.NAME}"><label>(PLACEHOLDER){scp_style_settings.LABEL}</label></li>
+					<li class="scp_style_settings_menu_item" data-category="{scp_style_settings.NAME}"><label>{scp_style_settings.LABEL}</label></li>
 				<!-- END scp_style_settings -->
 			</ul>
 			<div class="scp_style_settings_content">
 				<!-- BEGIN scp_style_settings -->
-					<fieldset class="scp_controls" data-category="{scp_style_settings.NAME}">
-						<!-- BEGIN controls -->
-							<dl data-control="{scp_style_settings.controls.NAME}">
-								<dt><label>(PLACEHOLDER){scp_style_settings.controls.LABEL}</label><p>(PLACEHOLDER){scp_style_settings.controls.HELP}</p><span>@{scp_style_settings.controls.NAME}</span></dt>
-								<dd>{scp_style_settings.controls.INPUT}</dd>
+					<fieldset class="scp_style_vars" data-category="{scp_style_settings.NAME}">
+						<!-- BEGIN style_vars -->
+							<dl class="scp_style_var" data-name="{scp_style_settings.style_vars.NAME}" data-used="{scp_style_settings.style_vars.USED}">
+								<dt><label>{scp_style_settings.style_vars.LABEL}</label><p>(PLACEHOLDER) {scp_style_settings.style_vars.HELP}</p><span>@{scp_style_settings.style_vars.NAME}</span></dt>
+								<dd>{scp_style_settings.style_vars.INPUT}</dd>
 							</dl>
-						<!-- END controls -->
+						<!-- END style_vars -->
 					</fieldset>
 				<!-- END scp_style_settings -->
 			</div>
