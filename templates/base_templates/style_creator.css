@@ -192,7 +192,6 @@
 
 // Controls
 .scp_style_var {
-	// TODO: use here opacity: .5; if not used in current style, disable on :hover or if cariable is changed
 	position: relative;
 
 	padding: 5px 5px 0;

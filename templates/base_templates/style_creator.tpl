@@ -226,9 +226,12 @@
 		
 	});
 	
-	/*	TODO:
-			Das draggen des Dialogs
-				$( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
+	/*
+		TODO: Dialog draggable machen =>  $( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
+		
+		TODO: Add support for re-use variable for another variable like: @eqdkpContentFontColor : @eqdkpBodyFontColor ;
+		
+		TODO: Add support for jQuery variables
 	*/
 	
 </script>
