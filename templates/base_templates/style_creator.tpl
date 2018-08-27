@@ -21,13 +21,14 @@
 			
 			
 			init: function(){
-				SCP.toggleStyleSettings(true);
+				this.toggleStyleSettings(true);
+				this._registerUserControls();
 				
-				SCP.disableCache();
+				this.disableCache();
 				
 				// Add executable style element to <head>
 				$('html > head').append('<style id="scp_less_dist"></style>');
-				SCP.genLessSrc();
+				this.genLessSrc();
 				
 				// Init less options
 				less = {
@@ -69,20 +70,20 @@
 				
 				let less_vars = {...this._global_vars, ...current_vars, ...new_vars};
 				
-				SCP.genLessSrc();
+				this.genLessSrc();
 				
 				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify(less_vars));
 				return less.modifyVars(less_vars);
 			},
 			
 			watch: function(){
-				SCP._watch_mode = true;
-				SCP.refresh();
+				this._watch_mode = true;
+				this.refresh();
 			},
 			
 			unwatch: function(){
-				clearTimeout(SCP._watch_timer);
-				SCP._watch_mode = false;
+				clearTimeout(this._watch_timer);
+				this._watch_mode = false;
 			},
 			
 			genLessSrc: function(){
@@ -168,7 +169,7 @@
 			},
 			
 			toggleStyleSettings: function(init=false){
-				let storage_key		= SCP._storage_key+'show_sidebar';
+				let storage_key		= this._storage_key+'show_sidebar';
 				let show_sidebar	= localStorage.getItem(storage_key);
 				let base_element	= $('#scp_overlay > .scp_style_settings');
 				
@@ -206,6 +207,10 @@
 				return false;
 			},
 			
+			_registerUserControls: function(){
+				// TODO: put here all the event handler stuff for user controls, like menu switch, close button, etc
+			},
+			
 			_setAverageDelay: function(delay){
 				if(this._last_delays.length >= 10) this._last_delays.shift();
 				this._last_delays.push(delay);
@@ -213,6 +218,7 @@
 			
 			_getAverageDelay: () => SCP._last_delays.reduce((total, current_value) => total += current_value, 0) / SCP._last_delays.length,
 		};
+		
 		SCP.init();
 		
 		// NOTE: Maybe we should here use the template overwrite method of EQdkp
