@@ -208,7 +208,30 @@
 			},
 			
 			_registerUserControls: function(){
+				let self = this;
 				// TODO: put here all the event handler stuff for user controls, like menu switch, close button, etc
+				
+				// Show correct StyleVars for MenuItem
+				$('.scp_style_settings_menu_item > label').on('click', function(){
+					let show_category = $(this).parent().data('category');
+					$('.scp_style_settings_menu_item').each(function(){
+						if( $(this).data('category') != show_category) $(this).removeClass('scp-selected');
+						else $(this).addClass('scp-selected');
+					});
+					$('.scp_style_vars').each(function(){
+						if( $(this).data('category') != show_category) $(this).removeClass('scp-selected');
+						else $(this).addClass('scp-selected');
+					});
+				});
+				
+				// Refresh Style on {ENTER} @Input
+				$('.scp_style_var input').keypress(function(event){
+					if(event.keyCode == 13){
+						let variable = { }; variable[event.currentTarget.name] = event.currentTarget.value;
+						self.refresh(variable);
+					}
+				});
+				
 			},
 			
 			_setAverageDelay: function(delay){
@@ -221,7 +244,6 @@
 		
 		SCP.init();
 		
-		// NOTE: Maybe we should here use the template overwrite method of EQdkp
 		if(mmocms_page == 'admin/manage_extensions') $('#plus_plugins_tab button[onclick$="create\'"]').before('<button class="mainoption" type="button" onclick="SCP.toggle();"><i class="fa fa-paint-brush" /> (PLACEHOLDER)</button>');
 		
 	});

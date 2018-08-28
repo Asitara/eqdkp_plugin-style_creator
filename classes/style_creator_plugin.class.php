@@ -104,68 +104,6 @@ if(!class_exists('style_creator_plugin')){
 		public function getLessVars($format_simple=false){
 			$style = $this->user->style;
 			
-			/*
-			$arrLessVars = ['environment' => [
-				'eqdkpURL' => [
-					'value' => '"'.$this->env->link.'"',
-				],
-				'eqdkpGame' => [
-					'value' => '"'.$this->config->get('default_game').'"',
-				],
-				'eqdkpServerPath' => [
-					'value' => '"'.$this->server_path.'"',
-				],
-				'eqdkpRootPath' => [
-					'value' => '"'.$this->root_path.'"',
-				],
-				'eqdkpImagePath' => [
-					'value' => '"'.$this->root_path.'images/"',
-				],
-				'eqdkpImageURL' => [
-					'value' => '"'.$this->env->link.'images/"',
-				],
-				'eqdkpTemplatePathLess' => [
-					'value' => '"./templates/'.$style['template_path'].'/"',
-				],
-				'eqdkpTemplateImagePath' => [
-					'value' => '"'.$this->root_path.'templates/'.$style['template_path'].'/images/"',
-				],
-				'eqdkpTemplateImageURL' => [
-					'value' => '"'.$this->env->link.'templates/'.$style['template_path'].'/images/"',
-				],
-				'eqdkpTemplateBanner' => [
-					'value' => '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
-				],
-				'eqdkpBannerImage' => [
-					'value' => '"'.$this->replaceSomePathVariables($style['banner_img'], $this->root_path, $style['template_path']).'"',
-				],
-				'eqdkpTemplateBackground' => [
-					'value' => '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
-				],
-				'eqdkpBackgroundImage' => [
-					'value' => '"'.$this->replaceSomePathVariables($this->getStyleBackgroundImage(), $this->root_path, $style['template_path']).'"',
-				],
-				'eqdkpBackgroundImagePosition' => [
-					'value' => (($style['background_pos'] == 'normal')? 'scroll' : 'fixed'),
-				],
-				'eqdkpPortalWidth' => [
-					'value' => ($style['portal_width'] != '')? $style['portal_width'] : '900px',
-				],
-				'eqdkpColumnLeftWidth' => [
-					'value' => ($style['column_left_width'] != '')? $style['column_left_width'] : '200px',
-				],
-				'eqdkpColumnRightWidth' => [
-					'value' => ($style['column_right_width'] != '')? $style['column_right_width'] : '200px',
-				],
-				'eqdkpPortalWidthWithoutBothColumns' => [
-					'value' => (intval($style['portal_width']) - intval($style['column_left_width']) - intval($style['column_right_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
-				],
-				'eqdkpPortalWidthWithoutLeftColumn' => [
-					'value' => (intval($style['portal_width']) - intval($style['column_left_width'])).((strpos($style['portal_width'], '%') !== false)? '%' : 'px'),
-				],
-			]];
-			*/
-			
 			// Add Core/Environment variables
 			$arrLessVars = ['environment' => [
 				'eqdkpURL'							=> '"'.$this->env->link.'"',
@@ -328,14 +266,12 @@ if(!class_exists('style_creator_plugin')){
 			
 			
 			
-			// TODO: Copy the manage_styles.php -> get_used_variables() :: to hide some input fields with opacity .5 except they are changed
-			
 			$strHTML = '';
 			$strPrefixedName = 'scp_style_var-'.$arrVarData['name'];
 			
 			switch($arrVarData['type']){
 				case 'color':
-						$strHTML .= (new htext($strPrefixedName, ['value' => $arrVarData['value'], 'size' => 14]))->output();
+						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => $arrVarData['value'], 'size' => 14]))->output();
 						$strHTML .= '<script>$(\'#'.$strPrefixedName.'\').spectrum('.json_encode([
 							'showInput'				=> true,
 							// 'showInitial'			=> true,
@@ -354,7 +290,7 @@ if(!class_exists('style_creator_plugin')){
 					break;
 				
 				case 'decoration':
-						$strHTML .= (new hdropdown($strPrefixedName, ['options' => $text_decoration, 'value' => $arrVarData['value']]))->output();
+						$strHTML .= (new hdropdown($arrVarData['name'], ['id' => $strPrefixedName, 'options' => $text_decoration, 'value' => $arrVarData['value']]))->output();
 					break;
 				
 				// case 'font-family':
@@ -362,11 +298,11 @@ if(!class_exists('style_creator_plugin')){
 				// 	break;
 				
 				case 'size':
-						$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 3]))->output();
+						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => sanitize($arrVarData['value']), 'size' => 3]))->output();
 					break;
 				
 				default:
-					$strHTML .= (new htext($strPrefixedName, ['value' => sanitize($arrVarData['value']), 'size' => 30]))->output();
+					$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => sanitize($arrVarData['value']), 'size' => 30]))->output();
 			}
 			
 			return $strHTML;

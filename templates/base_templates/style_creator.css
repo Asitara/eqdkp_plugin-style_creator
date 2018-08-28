@@ -82,6 +82,7 @@
 	}
 	&.scp_sidebar {
 		width: 400px;
+		height: 100%;
 
 		background: url('@{eqdkpRootPath}plugins/style_creator/templates/base_templates/images/bg_strong.png') 50% 50% repeat;
 		border: 1px solid #a3a3a3;
@@ -147,33 +148,63 @@
 
 // Settings Body
 .scp_style_settings_body {
-	display: flex;
-
 	height: calc(~'100% - 65px');	// Get & Calculate Height - depend of .scp_style_settings_head
 	margin: 5px;
 
-	flex-wrap: wrap;
+	.scp_dialog & {
+		display: flex;
+
+		flex-wrap: wrap;
+	}
 }
 .scp_style_settings_menu {
 	overflow-y: auto;
 
 	height: 100%;
-	margin-right: 5px;
 	padding-right: 3px;
 
 	list-style: none;
 
-	flex: 0 0 170px;
-}
-.scp_style_settings_menu_item > label {
-	display: block;
+	.scp_dialog & {
+		margin-right: 5px;
 
-	margin-bottom: 5px;
-	padding: 5px 10px;
-
-	background: rgba(200, 90, 30, .5);
-	border: 1px solid rgba(200, 90, 30, .5);
+		flex: 0 0 170px;
+	}
 }
+.scp_style_settings_menu_item {
+	 > label {
+		display: block;
+
+		margin-bottom: 5px;
+		padding: 5px 10px;
+
+		cursor: pointer;
+
+		background: rgba(200, 90, 30, .5);
+		border: 1px solid rgba(200, 90, 30, .5);
+	}
+	&.scp-selected > label {
+		background: rgba(220, 100, 30, .8);
+		border: 1px solid rgba(255, 90, 0, .8);
+	}
+}
+// .scp_style_settings_menu_item > label {
+// 	.scp-selected;
+//
+// 	display: block;
+//
+// 	margin-bottom: 5px;
+// 	padding: 5px 10px;
+//
+// 	cursor: pointer;
+//
+// 	background: rgba(200, 90, 30, .5);
+// 	border: 1px solid rgba(200, 90, 30, .5);
+// 	.scp-selected& {//.scp-selected& {}
+// 		background: rgba(220, 100, 30, .8);
+// 		border: 1px solid rgba(255, 90, 0, .8);
+// 	}
+// }
 .scp_style_settings_content {
 	overflow-y: auto;
 
@@ -191,6 +222,13 @@
 }
 
 // Controls
+.scp_style_vars {
+	display: none;
+
+	&.scp-selected {
+		display: block;
+	}
+}
 .scp_style_var {
 	position: relative;
 
