@@ -188,23 +188,6 @@
 		border: 1px solid rgba(255, 90, 0, .8);
 	}
 }
-// .scp_style_settings_menu_item > label {
-// 	.scp-selected;
-//
-// 	display: block;
-//
-// 	margin-bottom: 5px;
-// 	padding: 5px 10px;
-//
-// 	cursor: pointer;
-//
-// 	background: rgba(200, 90, 30, .5);
-// 	border: 1px solid rgba(200, 90, 30, .5);
-// 	.scp-selected& {//.scp-selected& {}
-// 		background: rgba(220, 100, 30, .8);
-// 		border: 1px solid rgba(255, 90, 0, .8);
-// 	}
-// }
 .scp_style_settings_content {
 	overflow-y: auto;
 
@@ -268,13 +251,19 @@
 	top: 3px;
 	right: 10px;
 
+	-webkit-user-select: all;
+	-moz-user-select: all;
+	-ms-user-select: all;
+	user-select: all;
+
 	color: #777;
 }
 .scp_style_var dd {
 	padding: 10px 0 5px 15px;
 }
 
-.scp_style_var input[type='text'] {
+.scp_style_var .input {
+	width: 18em;
 	margin: 0;
 	padding: 3px 3px;
 
@@ -284,15 +273,20 @@
 	background: hsla(100, 0, 0, 0);
 	border-radius: 0;
 }
+.scp_style_var .textarea {
+	width: 46em;
+	height: 10em;
+}
 
-.scp_style_var .colorpicker {
-	display: inline-block;
+.scp_style_var .sp-input {
+	display: inline-block !important;
 
-	margin-right: -1px;
+	width: 14em;
 }
 .scp_style_var .sp-replacer {
 	box-sizing: border-box;
 	height: 20px;
+	margin-left: -1px;
 	padding: 0;
 
 	border-radius: 0;

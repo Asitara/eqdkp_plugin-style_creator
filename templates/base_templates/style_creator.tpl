@@ -26,6 +26,8 @@
 				
 				this.disableCache();
 				
+				$('.scp_style_var[data-name="additional_less"] .input.textarea').val(this.include_less.additional_less);
+				
 				// Add executable style element to <head>
 				$('html > head').append('<style id="scp_less_dist"></style>');
 				this.genLessSrc();
@@ -34,7 +36,7 @@
 				less = {
 					env: 'development',			// NOTE: maybe we can set it to production, we have own watch mode
 					useFileCache: false,
-					// errorReporting: self.errorHandler,
+					// errorReporting: SCP.errorHandler,
 					plugins: [SCP._less_plugin],
 					globalVars: SCP._global_vars,
 				};
@@ -209,7 +211,6 @@
 			
 			_registerUserControls: function(){
 				let self = this;
-				// TODO: put here all the event handler stuff for user controls, like menu switch, close button, etc
 				
 				// Show correct StyleVars for MenuItem
 				$('.scp_style_settings_menu_item > label').on('click', function(){
@@ -224,13 +225,29 @@
 					});
 				});
 				
+				// Dialog Draggable
+				$('#scp_overlay .scp_dialog').draggable({ cursor: 'move', distance: 20, revert: 'invalid', });
+				$('#scp_overlay').droppable();	// prevent overflow
+				
 				// Refresh Style on {ENTER} @Input
-				$('.scp_style_var input').keypress(function(event){
+				$('.scp_style_var .input:not(.textarea)').keypress(function(event){
 					if(event.keyCode == 13){
 						let variable = { }; variable[event.currentTarget.name] = event.currentTarget.value;
 						self.refresh(variable);
 					}
 				});
+				
+				// Refresh Style on {ENTER} @additional_less
+				$('.scp_style_var[data-name="additional_less"] .input.textarea').keypress(function(event){
+					if(event.keyCode == 13 && !event.shiftKey){
+						event.preventDefault();
+						// TODO: this need localStorage entry + load_order have to be rewritten
+						self.include_less.additional_less = event.currentTarget.value;
+						self.refresh();
+					}
+				});
+				
+				// TODO: colorpicker need a 'change' option via .spectrum()
 				
 			},
 			
@@ -249,9 +266,7 @@
 	});
 	
 	/*
-		TODO: Dialog draggable machen =>  $( "#scp_overlay .scp_dialog" ).draggable({ distance: 20, revert: "invalid", }); $("#scp_overlay").droppable();
-		
-		TODO: Add support for re-use variable for another variable like: @eqdkpContentFontColor : @eqdkpBodyFontColor ;
+		TODO: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist could be cool with known variables
 		
 		TODO: Add support for jQuery variables
 	*/
@@ -271,7 +286,7 @@
 		<div class="scp_style_settings_body">
 			<ul class="scp_style_settings_menu">
 				<!-- BEGIN scp_style_settings -->
-					<li class="scp_style_settings_menu_item" data-category="{scp_style_settings.NAME}"><label>{scp_style_settings.LABEL}</label></li>
+					<li class="scp_style_settings_menu_item" data-category="{scp_style_settings.NAME}"><label>(PLACEHOLDER) {scp_style_settings.LABEL}</label></li>
 				<!-- END scp_style_settings -->
 			</ul>
 			<div class="scp_style_settings_content">
@@ -283,6 +298,12 @@
 								<dd>{scp_style_settings.style_vars.INPUT}</dd>
 							</dl>
 						<!-- END style_vars -->
+						<!-- IF scp_style_settings.NAME == 'misc' -->
+							<dl class="scp_style_var" data-name="additional_less" data-used="true">
+								<dt><label>{L_stylesettings_additional_less}</label><p>(PLACEHOLDER) {L_stylesettings_additional_less}</p></dt>
+								<dd><textarea class="input textarea"></textarea></dd>
+							</dl>
+						<!-- ENDIF -->
 					</fieldset>
 				<!-- END scp_style_settings -->
 			</div>

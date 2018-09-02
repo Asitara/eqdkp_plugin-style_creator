@@ -188,6 +188,7 @@ if(!class_exists('style_creator_plugin')){
 		}
 		
 		public function init(){
+			#return;
 			
 			$this->tpl->assign_vars([
 				'SCP_LOAD'				=> false,
@@ -267,12 +268,12 @@ if(!class_exists('style_creator_plugin')){
 			
 			
 			$strHTML = '';
-			$strPrefixedName = 'scp_style_var-'.$arrVarData['name'];
+			$strPrefixedID = 'scp_style_var-'.$arrVarData['name'];
 			
 			switch($arrVarData['type']){
 				case 'color':
-						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => $arrVarData['value'], 'size' => 14]))->output();
-						$strHTML .= '<script>$(\'#'.$strPrefixedName.'\').spectrum('.json_encode([
+						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedID, 'class' => 'input sp-input', 'value' => $arrVarData['value']]))->output();
+						$strHTML .= '<script>$(\'#'.$strPrefixedID.'\').spectrum('.json_encode([
 							'showInput'				=> true,
 							// 'showInitial'			=> true,
 							'showAlpha'				=> true,
@@ -290,7 +291,7 @@ if(!class_exists('style_creator_plugin')){
 					break;
 				
 				case 'decoration':
-						$strHTML .= (new hdropdown($arrVarData['name'], ['id' => $strPrefixedName, 'options' => $text_decoration, 'value' => $arrVarData['value']]))->output();
+						$strHTML .= (new hdropdown($arrVarData['name'], ['id' => $strPrefixedID, 'options' => $text_decoration, 'value' => $arrVarData['value']]))->output();
 					break;
 				
 				// case 'font-family':
@@ -298,11 +299,11 @@ if(!class_exists('style_creator_plugin')){
 				// 	break;
 				
 				case 'size':
-						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => sanitize($arrVarData['value']), 'size' => 3]))->output();
+						$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedID, 'value' => sanitize($arrVarData['value'])]))->output();
 					break;
 				
 				default:
-					$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedName, 'value' => sanitize($arrVarData['value']), 'size' => 30]))->output();
+					$strHTML .= (new htext($arrVarData['name'], ['id' => $strPrefixedID, 'value' => sanitize($arrVarData['value'])]))->output();
 			}
 			
 			return $strHTML;
