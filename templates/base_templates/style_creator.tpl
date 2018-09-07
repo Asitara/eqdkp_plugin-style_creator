@@ -75,7 +75,16 @@
 				this.genLessSrc();
 				
 				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify(less_vars));
-				return less.modifyVars(less_vars);
+				
+				// NOTE: We need here a workaround, if we refresh a file/additional_less or change a simple variable
+				//		Cause if we put all our changed vars into refresh command they will overwrite variables in files/additional_less
+				//		Proplem is: what can we do here, if we change additional_less then change a variable it will break again the additional_less stuff
+				//		--- (What we can try) put all changed vars in the preProcessor Task like: globalVars -> changedVars -> files -> additional_less with newVar
+				//		--- Or doesn't allow to change additional_less, load it but ignore changes and maybe core vars in it
+				
+				// return less.modifyVars(less_vars);
+				// return less.refresh(true, less_vars);
+				// return less.refreshStyles();
 			},
 			
 			watch: function(){
@@ -95,7 +104,9 @@
 				$(load_order).each(function(index){
 					if(!load_order[index].load) return;
 					if(load_order[index].type == 'var'){
-						less_code += (SCP.include_less[load_order[index].file])? SCP.include_less[load_order[index].file]+'\n' : '';
+						let stashed_file = localStorage.getItem(SCP._storage_key+load_order[index].file);
+						if(stashed_file != undefined) less_code += stashed_file;
+						else less_code += (SCP.include_less[load_order[index].file])? SCP.include_less[load_order[index].file]+'\n' : '';
 					}else{
 						less_code += '@import ('+load_order[index].options+') "@{'+'eqdkpRootPath'+'}'+load_order[index].file+'";'+'\n';
 					}
@@ -226,8 +237,16 @@
 				});
 				
 				// Dialog Draggable
-				$('#scp_overlay .scp_dialog').draggable({ cursor: 'move', distance: 20, revert: 'invalid', });
-				$('#scp_overlay').droppable();	// prevent overflow
+				$('#scp_overlay .scp_dialog').draggable({
+					cursor: 'move',
+					// distance: 20,
+					// revert: 'invalid',
+					
+					containment: '.scp_dialog_dragzone',
+					scroll: false,
+					handle: '.scp_style_settings_title',
+				});
+				// $('#scp_overlay').droppable();	// prevent overflow
 				
 				// Refresh Style on {ENTER} @Input
 				$('.scp_style_var .input:not(.textarea)').keypress(function(event){
@@ -241,12 +260,12 @@
 				$('.scp_style_var[data-name="additional_less"] .input.textarea').keypress(function(event){
 					if(event.keyCode == 13 && !event.shiftKey){
 						event.preventDefault();
-						// TODO: this need localStorage entry + load_order have to be rewritten
-						self.include_less.additional_less = event.currentTarget.value;
+						localStorage.setItem(self._storage_key+'additional_less', event.currentTarget.value);
 						self.refresh();
 					}
 				});
 				
+				// NOTE: Maybe we should move the localStorage.setItem() stuf to this section especially SCP.refresh();
 				// TODO: colorpicker need a 'change' option via .spectrum()
 				
 			},
@@ -274,7 +293,7 @@
 </script>
 
 
-<div id="scp_overlay">
+<div id="scp_overlay"><div style="position:absolute;top:-10px;left:-100px;right:-600px;bottom:-370px;" class="scp_dialog_dragzone"></div>
 	<div class="scp_style_settings scp_dialog">
 		<div class="scp_style_settings_head">
 			<h1 class="scp_style_settings_title">{L_style_creator}</h1>
