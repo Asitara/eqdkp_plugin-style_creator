@@ -21,12 +21,13 @@
 			
 			
 			init: function(){
-				this.toggleStyleSettings(true);
 				this._registerUserControls();
+				this.toggleStyleSettings(true);
 				
 				this.disableCache();
 				
-				$('.scp_style_var[data-name="additional_less"] .input.textarea').val(this.include_less.additional_less);
+				let additional_less = localStorage.getItem(this._storage_key+'additional_less');
+				$('.scp_style_var[data-name="additional_less"] .input.textarea').val((additional_less != undefined)? additional_less : this.include_less.additional_less);
 				
 				// Add executable style element to <head>
 				$('html > head').append('<style id="scp_less_dist"></style>');
@@ -70,11 +71,10 @@
 				let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
 				current_vars = (typeof current_vars == 'object')? current_vars : { };
 				
-				let less_vars = {...this._global_vars, ...current_vars, ...new_vars};
+				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify({...this._global_vars, ...current_vars, ...new_vars}));
 				
 				this.genLessSrc();
 				
-				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify(less_vars));
 				
 				// NOTE: We need here a workaround, if we refresh a file/additional_less or change a simple variable
 				//		Cause if we put all our changed vars into refresh command they will overwrite variables in files/additional_less
@@ -84,7 +84,7 @@
 				
 				// return less.modifyVars(less_vars);
 				// return less.refresh(true, less_vars);
-				// return less.refreshStyles();
+				return less.refreshStyles();
 			},
 			
 			watch: function(){
@@ -100,17 +100,16 @@
 			genLessSrc: function(){
 				let less_code = '';
 				
-				let load_order = this.load_order;
-				$(load_order).each(function(index){
-					if(!load_order[index].load) return;
-					if(load_order[index].type == 'var'){
-						let stashed_file = localStorage.getItem(SCP._storage_key+load_order[index].file);
+				for(let i = 0; i < this.load_order.length; i++){
+					if(!this.load_order[i].load) return;
+					if(this.load_order[i].type == 'var'){
+						let stashed_file = localStorage.getItem(this._storage_key+this.load_order[i].file);
 						if(stashed_file != undefined) less_code += stashed_file;
-						else less_code += (SCP.include_less[load_order[index].file])? SCP.include_less[load_order[index].file]+'\n' : '';
+						else less_code += (this.include_less[this.load_order[i].file])? this.include_less[this.load_order[i].file]+'\n' : '';
 					}else{
-						less_code += '@import ('+load_order[index].options+') "@{'+'eqdkpRootPath'+'}'+load_order[index].file+'";'+'\n';
+						less_code += '@import ('+this.load_order[i].options+') "@{'+'eqdkpRootPath'+'}'+this.load_order[i].file+'";'+'\n';
 					}
-				});
+				}
 				
 				$('#scp_less_dist').attr('type','text/less').text(less_code);
 				return less_code;
@@ -149,6 +148,7 @@
 			
 			wipeData: function(){
 				localStorage.removeItem(this._storage_key+'current_vars');
+				localStorage.removeItem(this._storage_key+'additional_less');
 			},
 			
 			_less_plugin: {
@@ -157,9 +157,15 @@
 						process: function (src, extra){
 							SCP._parse_time = new Date();
 							
+							let changed_vars = '';
+							let current_vars = JSON.parse(localStorage.getItem(SCP._storage_key+'current_vars'));
+							for (var var_name in current_vars) {
+								changed_vars += '@'+var_name+':'+current_vars[var_name]+';\n';
+							}
+							
 							// BUG: Maybe you can add here a routine to re-write path, less options doesn't work correctly
 							
-							return src;
+							return changed_vars+src;
 						}
 					});
 					pluginManager.addPostProcessor({
@@ -196,12 +202,14 @@
 						if(menu_item.length) $(element).detach().appendTo(menu_item);
 					});
 					localStorage.setItem(storage_key, true);
+					base_element.draggable('disable');
 				}else{
 					base_element.switchClass('scp_sidebar','scp_dialog');
 					base_element.find('.scp_style_vars[data-category]').each(function(index, element){
 						$(element).detach().appendTo(base_element.find('.scp_style_settings_content'));
 					});
 					localStorage.setItem(storage_key, false);
+					base_element.draggable('enable');
 				}
 			},
 			
@@ -223,7 +231,7 @@
 			_registerUserControls: function(){
 				let self = this;
 				
-				// Show correct StyleVars for MenuItem
+				// Menu Handling
 				$('.scp_style_settings_menu_item > label').on('click', function(){
 					let show_category = $(this).parent().data('category');
 					$('.scp_style_settings_menu_item').each(function(){
@@ -239,14 +247,10 @@
 				// Dialog Draggable
 				$('#scp_overlay .scp_dialog').draggable({
 					cursor: 'move',
-					// distance: 20,
-					// revert: 'invalid',
-					
 					containment: '.scp_dialog_dragzone',
 					scroll: false,
 					handle: '.scp_style_settings_title',
 				});
-				// $('#scp_overlay').droppable();	// prevent overflow
 				
 				// Refresh Style on {ENTER} @Input
 				$('.scp_style_var .input:not(.textarea)').keypress(function(event){
@@ -293,7 +297,8 @@
 </script>
 
 
-<div id="scp_overlay"><div style="position:absolute;top:-10px;left:-100px;right:-600px;bottom:-370px;" class="scp_dialog_dragzone"></div>
+<div id="scp_overlay">
+	<div class="scp_dialog_dragzone"></div>
 	<div class="scp_style_settings scp_dialog">
 		<div class="scp_style_settings_head">
 			<h1 class="scp_style_settings_title">{L_style_creator}</h1>
