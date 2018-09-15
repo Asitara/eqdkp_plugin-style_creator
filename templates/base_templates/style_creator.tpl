@@ -252,12 +252,34 @@
 					handle: '.scp_style_settings_title',
 				});
 				
+				// Re-Define Inputs
+				let curent_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
+				$('.scp_style_var .input').each(function(){
+					let var_name = $(this).attr('name');
+					if(curent_vars[var_name]){
+						if($(this).hasClass('sp-input')){
+							$(this).spectrum('set', curent_vars[var_name]);
+						}else{
+							$(this).val(curent_vars[var_name]);
+						}
+					}
+				});
+				
 				// Refresh Style on {ENTER} @Input
 				$('.scp_style_var .input:not(.textarea)').keypress(function(event){
 					if(event.keyCode == 13){
 						let variable = { }; variable[event.currentTarget.name] = event.currentTarget.value;
+						if($(this).hasClass('sp-input')) $(this).spectrum('set', event.currentTarget.value);
 						self.refresh(variable);
 					}
+				});
+				
+				// Refresh Style on change Colorpicker
+				$('.scp_style_var .sp-input').each(function(){
+					$(this).on('change.spectrum', function(event){
+						let variable = { }; variable[event.currentTarget.name] = event.currentTarget.value;
+						self.refresh(variable);
+					});
 				});
 				
 				// Refresh Style on {ENTER} @additional_less
@@ -268,9 +290,6 @@
 						self.refresh();
 					}
 				});
-				
-				// NOTE: Maybe we should move the localStorage.setItem() stuf to this section especially SCP.refresh();
-				// TODO: colorpicker need a 'change' option via .spectrum()
 				
 			},
 			
