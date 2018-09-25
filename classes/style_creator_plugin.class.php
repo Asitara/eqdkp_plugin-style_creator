@@ -198,7 +198,10 @@ if(!class_exists('style_creator_plugin')){
 				'SCP_ADDITIONAL_LESS'	=> "'".str_replace("'", "\'", strip_tags($this->user->style['additional_less']))."'"
 			]);
 			
+			// catch http requests
+			// NOTE: Do it bit smarter, e.g: in->get(scp_action = toggle|save) then check scrf & execute toggle|save function
 			if($this->in->exists('scp_toggle')) $this->toggle();
+			if($this->in->exists('scp_save')) $this->save();
 			
 			// if($this->config->get('scp_enabled', 'style_creator')) $this->load();
 			$this->loadPage();
@@ -316,6 +319,23 @@ if(!class_exists('style_creator_plugin')){
 			$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
 			if($blnCSRF){
 				$this->config->set('scp_enabled', !$this->config->get('scp_enabled', 'style_creator'), 'style_creator');
+				$error = false;
+			}
+			
+			if($return) return !$error;
+			die(json_encode(['error' => $error]));
+		}
+		
+		public function save($return=false){
+			$error = true;
+			
+			$blnCSRF = $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken()));
+			$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
+			if($blnCSRF){
+				// $this->in->get('scp_style_code');
+				//
+				// TODO: write here the logic for saving a style to DB or FileSystem
+				
 				$error = false;
 			}
 			

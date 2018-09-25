@@ -58,8 +58,26 @@
 				this.wipeData();
 			},
 			
-			message: function(){
-				$('#scp_overlay > .scp_msg_box').toggleClass('scp_msg_box-active');
+			message: function(template){
+				$('.scp_msg_box .scp_msg_box_title').text('(PLACEHOLDER)');
+				$('.scp_msg_box .scp_button-confirm').text('(PLACEHOLDER)');
+				$('.scp_msg_box .scp_button-abort').text('(PLACEHOLDER)');
+				
+				switch(template){
+					case 'save':
+						$('.scp_msg_box .scp_msg_box_text').html('<p>(PLACEHOLDER)</p><label><input name="scp_style_code" type="text" placeholder="my_style_code" /> (PLACEHOLDER)</label><p>(PLACEHOLDER)</p>');
+						$('.scp_msg_box .scp_button-confirm').attr('onclick', 'SCP.save(true);');
+						$('.scp_msg_box').addClass('scp_msg_box-active');
+						break;
+						
+					default:
+						$('.scp_msg_box .scp_msg_box_title').text('');
+						$('.scp_msg_box .scp_msg_box_text').text('');
+						$('.scp_msg_box .scp_button-confirm').text('');
+						$('.scp_msg_box .scp_button-abort').text('');
+						$('.scp_msg_box .scp_button-confirm').removeAttr('onclick');
+						$('.scp_msg_box').removeClass('scp_msg_box-active');
+				}
 			},
 			
 			errorHandler: function(){
@@ -213,6 +231,28 @@
 				}
 			},
 			
+			save: function(save_directly=false){
+				if(!save_directly){
+					this.message('save');
+				}else{
+					let style_code = $('.scp_msg_box input[name="scp_style_code"]').val().replace(/[\W]+/g,'').toLowerCase();
+					let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
+					current_vars['additional_less'] = localStorage.getItem(this._storage_key+'additional_less');
+					
+					$.post(mmocms_controller_path+mmocms_sid+'&scp_save', {
+							'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}',
+							'scp_style_code': style_code,
+							'scp_style_vars': current_vars,
+						},
+						function(response){
+							response = JSON.parse(response);
+							if(!response.error) alert('Bibo hat gespeichert...');
+							
+							// TODO: use here the jQuery start/done/fail functions for ajax to trigger the load icon
+					});
+				}
+			},
+			
 			_compareWithLoadOrder: function(url){
 				let url_parser = document.createElement('a'); // { protocol => "http:", host => "example.com:3000", hostname => "example.com", port => "3000", pathname => "/pathname/", search => "?search=test", hash => "#hash" }
 						
@@ -231,6 +271,9 @@
 			_registerUserControls: function(){
 				let self = this;
 				
+				$('.scp_button-toggle').on('click', function(){ self.toggleStyleSettings(); });
+				$('.scp_button-save').on('click', function(){ self.save(); });
+				
 				// Menu Handling
 				$('.scp_style_settings_menu_item > label').on('click', function(){
 					let show_category = $(this).parent().data('category');
@@ -245,7 +288,7 @@
 				});
 				
 				// Dialog Draggable
-				$('#scp_overlay .scp_dialog').draggable({
+				$('.scp_style_settings').draggable({
 					cursor: 'move',
 					containment: '.scp_dialog_dragzone',
 					scroll: false,
@@ -323,8 +366,8 @@
 			<h1 class="scp_style_settings_title">{L_style_creator}</h1>
 			<button class="scp_button scp_button-close" type="button"></button>
 			
-			<button class="scp_button scp_button-toggle" type="button" onclick="SCP.toggleStyleSettings();"></button>
-			<button class="scp_button scp_button-config" type="button">(PLACEHOLDER) Config</button>
+			<button class="scp_button scp_button-toggle" type="button"></button>
+			<button class="scp_button scp_button-save" type="button">(PLACEHOLDER)</button>
 		</div>
 		<div class="scp_style_settings_body">
 			<ul class="scp_style_settings_menu">
