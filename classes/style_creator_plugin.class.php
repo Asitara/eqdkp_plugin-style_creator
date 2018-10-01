@@ -199,9 +199,16 @@ if(!class_exists('style_creator_plugin')){
 			]);
 			
 			// catch http requests
-			// NOTE: Do it bit smarter, e.g: in->get(scp_action = toggle|save) then check scrf & execute toggle|save function
-			if($this->in->exists('scp_toggle')) $this->toggle();
-			if($this->in->exists('scp_save')) $this->save();
+			if($strAction = $this->in->get('scp_action')){
+				$blnCSRF = $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken()));
+				$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
+				if($blnCSRF){
+					$strAction = 'http_action_'.$strAction;
+					@$this->$strAction();
+				}else{
+					die(json_encode(['error'=>true]));
+				}
+			}
 			
 			// if($this->config->get('scp_enabled', 'style_creator')) $this->load();
 			$this->loadPage();
@@ -312,35 +319,22 @@ if(!class_exists('style_creator_plugin')){
 			return $strHTML;
 		}
 		
-		public function toggle($return=false){
-			$error = true;
-			
-			$blnCSRF = $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken()));
-			$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
-			if($blnCSRF){
-				$this->config->set('scp_enabled', !$this->config->get('scp_enabled', 'style_creator'), 'style_creator');
-				$error = false;
-			}
-			
-			if($return) return !$error;
-			die(json_encode(['error' => $error]));
+		public function http_action_toggle(){
+			$this->config->set('scp_enabled', !$this->config->get('scp_enabled', 'style_creator'), 'style_creator');
+			die(json_encode(['error' => false]));
 		}
 		
-		public function save($return=false){
-			$error = true;
-			
-			$blnCSRF = $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken()));
-			$blnCSRF = $blnCSRF || $this->user->checkCsrfPostToken($this->in->get($this->user->csrfPostToken(true)));
-			if($blnCSRF){
-				// $this->in->get('scp_style_code');
-				//
-				// TODO: write here the logic for saving a style to DB or FileSystem
-				
-				$error = false;
+		public function http_action_save(){
+			$strStyleCode = preg_replace('/[\W]+/', '', trim(strtolower($this->in->get('scp_style_code'))));
+			$arrStyleVars = $this->in->getArray('scp_style_vars');
+			if(!empty($strStyleCode)){
+				// save into database
+			}else{
+				// save into filesystem
 			}
-			
-			if($return) return !$error;
-			die(json_encode(['error' => $error]));
+			d($strStyleCode);
+			d($arrStyleVars);
+			die(json_encode(['error' => false]));
 		}
 		
 		private function replaceSomePathVariables($strVar){

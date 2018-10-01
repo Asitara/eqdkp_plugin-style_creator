@@ -48,7 +48,7 @@
 			},
 			
 			toggle: function(){
-				$.post(mmocms_controller_path+mmocms_sid+'&scp_toggle', {'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
+				$.post(mmocms_controller_path+mmocms_sid, {'scp_action':'toggle', '{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}'},
 					function(response){
 						response = JSON.parse(response);
 						if(!response.error) location.reload();
@@ -63,19 +63,25 @@
 				$('.scp_msg_box .scp_button-confirm').text('(PLACEHOLDER)');
 				$('.scp_msg_box .scp_button-abort').text('(PLACEHOLDER)');
 				
+				$('.scp_msg_box .scp_button-abort').attr('onclick', 'SCP.message("abort");');
+				$('.scp_msg_box .scp_button-close').attr('onclick', 'SCP.message("close");');
+				
 				switch(template){
 					case 'save':
 						$('.scp_msg_box .scp_msg_box_text').html('<p>(PLACEHOLDER)</p><label><input name="scp_style_code" type="text" placeholder="my_style_code" /> (PLACEHOLDER)</label><p>(PLACEHOLDER)</p>');
 						$('.scp_msg_box .scp_button-confirm').attr('onclick', 'SCP.save(true);');
 						$('.scp_msg_box').addClass('scp_msg_box-active');
 						break;
-						
-					default:
-						$('.scp_msg_box .scp_msg_box_title').text('');
+					
+					case 'clear':
 						$('.scp_msg_box .scp_msg_box_text').text('');
-						$('.scp_msg_box .scp_button-confirm').text('');
-						$('.scp_msg_box .scp_button-abort').text('');
 						$('.scp_msg_box .scp_button-confirm').removeAttr('onclick');
+						$('.scp_msg_box').removeClass('scp_msg_box-active');
+						break;
+					
+					case 'close':
+					case 'abort':
+					default:
 						$('.scp_msg_box').removeClass('scp_msg_box-active');
 				}
 			},
@@ -92,16 +98,6 @@
 				localStorage.setItem(this._storage_key+'current_vars', JSON.stringify({...this._global_vars, ...current_vars, ...new_vars}));
 				
 				this.genLessSrc();
-				
-				
-				// NOTE: We need here a workaround, if we refresh a file/additional_less or change a simple variable
-				//		Cause if we put all our changed vars into refresh command they will overwrite variables in files/additional_less
-				//		Proplem is: what can we do here, if we change additional_less then change a variable it will break again the additional_less stuff
-				//		--- (What we can try) put all changed vars in the preProcessor Task like: globalVars -> changedVars -> files -> additional_less with newVar
-				//		--- Or doesn't allow to change additional_less, load it but ignore changes and maybe core vars in it
-				
-				// return less.modifyVars(less_vars);
-				// return less.refresh(true, less_vars);
 				return less.refreshStyles();
 			},
 			
@@ -232,24 +228,27 @@
 			},
 			
 			save: function(save_directly=false){
-				if(!save_directly){
-					this.message('save');
-				}else{
-					let style_code = $('.scp_msg_box input[name="scp_style_code"]').val().replace(/[\W]+/g,'').toLowerCase();
-					let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
-					current_vars['additional_less'] = localStorage.getItem(this._storage_key+'additional_less');
-					
-					$.post(mmocms_controller_path+mmocms_sid+'&scp_save', {
-							'{SCP_CSRF_TOKEN}':'{SCP_CSRF_TOKEN}',
-							'scp_style_code': style_code,
-							'scp_style_vars': current_vars,
-						},
-						function(response){
-							response = JSON.parse(response);
-							if(!response.error) alert('Bibo hat gespeichert...');
-							
-							// TODO: use here the jQuery start/done/fail functions for ajax to trigger the load icon
-					});
+				if(this._storage_key+'current_vars' in localStorage){
+					if(!save_directly){
+						this.message('save');
+					}else{
+						let style_code = $('.scp_msg_box input[name="scp_style_code"]').val().replace(/[\W]+/g,'').toLowerCase();
+						let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
+						current_vars['additional_less'] = localStorage.getItem(this._storage_key+'additional_less');
+						
+						$.post(mmocms_controller_path+mmocms_sid, {
+								'scp_action': 'save',
+								'{SCP_CSRF_TOKEN}': '{SCP_CSRF_TOKEN}',
+								'scp_style_code': style_code,
+								'scp_style_vars': current_vars,
+							},
+							function(response){
+								response = JSON.parse(response);
+								if(!response.error) alert('Bibo hat gespeichert...');
+								
+								// TODO: use here the jQuery start/done/fail functions for ajax to trigger the load icon
+						});
+					}
 				}
 			},
 			
@@ -296,14 +295,14 @@
 				});
 				
 				// Re-Define Inputs
-				let curent_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
+				let current_vars = JSON.parse(localStorage.getItem(this._storage_key+'current_vars'));
 				$('.scp_style_var .input').each(function(){
 					let var_name = $(this).attr('name');
-					if(curent_vars[var_name]){
+					if(current_vars && current_vars[var_name]){
 						if($(this).hasClass('sp-input')){
-							$(this).spectrum('set', curent_vars[var_name]);
+							$(this).spectrum('set', current_vars[var_name]);
 						}else{
-							$(this).val(curent_vars[var_name]);
+							$(this).val(current_vars[var_name]);
 						}
 					}
 				});
